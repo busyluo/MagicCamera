@@ -7,15 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2595D0731CB4DD4400AA313E /* test.png in Resources */ = {isa = PBXBuildFile; fileRef = 2595D0721CB4DD4400AA313E /* test.png */; };
+		2595D0761CB4F65400AA313E /* PreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2595D0751CB4F65400AA313E /* PreviewView.m */; };
+		2595D0791CB5125A00AA313E /* PathModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2595D0781CB5125A00AA313E /* PathModel.m */; };
+		2595D07C1CB5249000AA313E /* ForegroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2595D07B1CB5249000AA313E /* ForegroundView.m */; };
 		25D792E01CB29AC300692974 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 25D792DF1CB29AC300692974 /* main.m */; };
 		25D792E31CB29AC300692974 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 25D792E21CB29AC300692974 /* AppDelegate.m */; };
-		25D792E61CB29AC300692974 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 25D792E51CB29AC300692974 /* ViewController.m */; };
-		25D792E91CB29AC300692974 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 25D792E71CB29AC300692974 /* Main.storyboard */; };
-		25D792EC1CB29AC300692974 /* MagicCamera.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 25D792EA1CB29AC300692974 /* MagicCamera.xcdatamodeld */; };
+		25D792E61CB29AC300692974 /* RootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 25D792E51CB29AC300692974 /* RootViewController.m */; };
 		25D792EE1CB29AC300692974 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 25D792ED1CB29AC300692974 /* Assets.xcassets */; };
-		25D792F11CB29AC300692974 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 25D792EF1CB29AC300692974 /* LaunchScreen.storyboard */; };
 		25D792FC1CB29AC300692974 /* MagicCameraTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 25D792FB1CB29AC300692974 /* MagicCameraTests.m */; };
 		25D793071CB29AC400692974 /* MagicCameraUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 25D793061CB29AC400692974 /* MagicCameraUITests.m */; };
+		25D7931A1CB2AB6400692974 /* CameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 25D793191CB2AB6400692974 /* CameraViewController.m */; };
+		25D7931D1CB2AEDA00692974 /* LeftViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 25D7931C1CB2AEDA00692974 /* LeftViewController.m */; };
+		25D793201CB2B59000692974 /* MagicCamera.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 25D7931E1CB2B59000692974 /* MagicCamera.xcdatamodeld */; };
+		D3A1742BE122DBC61917552A /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B75266558336AE91D41238C /* libPods.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,16 +41,21 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1B75266558336AE91D41238C /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2595D0721CB4DD4400AA313E /* test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = test.png; path = ../../test.png; sourceTree = "<group>"; };
+		2595D0741CB4F65400AA313E /* PreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreviewView.h; sourceTree = "<group>"; };
+		2595D0751CB4F65400AA313E /* PreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreviewView.m; sourceTree = "<group>"; };
+		2595D0771CB5125A00AA313E /* PathModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathModel.h; sourceTree = "<group>"; };
+		2595D0781CB5125A00AA313E /* PathModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PathModel.m; sourceTree = "<group>"; };
+		2595D07A1CB5249000AA313E /* ForegroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ForegroundView.h; sourceTree = "<group>"; };
+		2595D07B1CB5249000AA313E /* ForegroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ForegroundView.m; sourceTree = "<group>"; };
 		25D792DB1CB29AC300692974 /* MagicCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MagicCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		25D792DF1CB29AC300692974 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		25D792E11CB29AC300692974 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		25D792E21CB29AC300692974 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		25D792E41CB29AC300692974 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		25D792E51CB29AC300692974 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		25D792E81CB29AC300692974 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		25D792EB1CB29AC300692974 /* MagicCamera.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MagicCamera.xcdatamodel; sourceTree = "<group>"; };
+		25D792E41CB29AC300692974 /* RootViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RootViewController.h; sourceTree = "<group>"; };
+		25D792E51CB29AC300692974 /* RootViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RootViewController.m; sourceTree = "<group>"; };
 		25D792ED1CB29AC300692974 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		25D792F01CB29AC300692974 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		25D792F21CB29AC300692974 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		25D792F71CB29AC300692974 /* MagicCameraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MagicCameraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		25D792FB1CB29AC300692974 /* MagicCameraTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MagicCameraTests.m; sourceTree = "<group>"; };
@@ -53,6 +63,14 @@
 		25D793021CB29AC400692974 /* MagicCameraUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MagicCameraUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		25D793061CB29AC400692974 /* MagicCameraUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MagicCameraUITests.m; sourceTree = "<group>"; };
 		25D793081CB29AC400692974 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		25D793171CB2A07C00692974 /* PrefixHeader.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
+		25D793181CB2AB6400692974 /* CameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraViewController.h; sourceTree = "<group>"; };
+		25D793191CB2AB6400692974 /* CameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraViewController.m; sourceTree = "<group>"; };
+		25D7931B1CB2AEDA00692974 /* LeftViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LeftViewController.h; sourceTree = "<group>"; };
+		25D7931C1CB2AEDA00692974 /* LeftViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LeftViewController.m; sourceTree = "<group>"; };
+		25D7931F1CB2B59000692974 /* MagicCamera.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MagicCamera.xcdatamodel; sourceTree = "<group>"; };
+		DB6A4451D3377791025EB06A /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		F2A26175DCA65F245DB348B5 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D3A1742BE122DBC61917552A /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +106,8 @@
 				25D792FA1CB29AC300692974 /* MagicCameraTests */,
 				25D793051CB29AC400692974 /* MagicCameraUITests */,
 				25D792DC1CB29AC300692974 /* Products */,
+				51C357817C9C98F423891ED5 /* Pods */,
+				431246E43C8B6981F4BC23A5 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -105,13 +126,11 @@
 			children = (
 				25D792E11CB29AC300692974 /* AppDelegate.h */,
 				25D792E21CB29AC300692974 /* AppDelegate.m */,
-				25D792E41CB29AC300692974 /* ViewController.h */,
-				25D792E51CB29AC300692974 /* ViewController.m */,
-				25D792E71CB29AC300692974 /* Main.storyboard */,
-				25D792ED1CB29AC300692974 /* Assets.xcassets */,
-				25D792EF1CB29AC300692974 /* LaunchScreen.storyboard */,
-				25D792F21CB29AC300692974 /* Info.plist */,
-				25D792EA1CB29AC300692974 /* MagicCamera.xcdatamodeld */,
+				25D792E41CB29AC300692974 /* RootViewController.h */,
+				25D792E51CB29AC300692974 /* RootViewController.m */,
+				25D793141CB29B5400692974 /* Models */,
+				25D793151CB29B5D00692974 /* Views */,
+				25D793161CB29B7000692974 /* Controllers */,
 				25D792DE1CB29AC300692974 /* Supporting Files */,
 			);
 			path = MagicCamera;
@@ -120,7 +139,12 @@
 		25D792DE1CB29AC300692974 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				25D7931E1CB2B59000692974 /* MagicCamera.xcdatamodeld */,
+				25D792ED1CB29AC300692974 /* Assets.xcassets */,
+				2595D0721CB4DD4400AA313E /* test.png */,
+				25D792F21CB29AC300692974 /* Info.plist */,
 				25D792DF1CB29AC300692974 /* main.m */,
+				25D793171CB2A07C00692974 /* PrefixHeader.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -143,6 +167,54 @@
 			path = MagicCameraUITests;
 			sourceTree = "<group>";
 		};
+		25D793141CB29B5400692974 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2595D0771CB5125A00AA313E /* PathModel.h */,
+				2595D0781CB5125A00AA313E /* PathModel.m */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		25D793151CB29B5D00692974 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				2595D0741CB4F65400AA313E /* PreviewView.h */,
+				2595D0751CB4F65400AA313E /* PreviewView.m */,
+				2595D07A1CB5249000AA313E /* ForegroundView.h */,
+				2595D07B1CB5249000AA313E /* ForegroundView.m */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		25D793161CB29B7000692974 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				25D793181CB2AB6400692974 /* CameraViewController.h */,
+				25D793191CB2AB6400692974 /* CameraViewController.m */,
+				25D7931B1CB2AEDA00692974 /* LeftViewController.h */,
+				25D7931C1CB2AEDA00692974 /* LeftViewController.m */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		431246E43C8B6981F4BC23A5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1B75266558336AE91D41238C /* libPods.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		51C357817C9C98F423891ED5 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				DB6A4451D3377791025EB06A /* Pods.debug.xcconfig */,
+				F2A26175DCA65F245DB348B5 /* Pods.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -150,9 +222,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 25D7930B1CB29AC400692974 /* Build configuration list for PBXNativeTarget "MagicCamera" */;
 			buildPhases = (
+				41CA5E27697F4122DB56AC08 /* Check Pods Manifest.lock */,
 				25D792D71CB29AC300692974 /* Sources */,
 				25D792D81CB29AC300692974 /* Frameworks */,
 				25D792D91CB29AC300692974 /* Resources */,
+				5780E227F19153EBBBC511C8 /* Embed Pods Frameworks */,
+				39F94F58C48F1A940EC76BE1 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -249,9 +324,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				25D792F11CB29AC300692974 /* LaunchScreen.storyboard in Resources */,
 				25D792EE1CB29AC300692974 /* Assets.xcassets in Resources */,
-				25D792E91CB29AC300692974 /* Main.storyboard in Resources */,
+				2595D0731CB4DD4400AA313E /* test.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,15 +345,68 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		39F94F58C48F1A940EC76BE1 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		41CA5E27697F4122DB56AC08 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		5780E227F19153EBBBC511C8 /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		25D792D71CB29AC300692974 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				25D792E61CB29AC300692974 /* ViewController.m in Sources */,
+				25D7931A1CB2AB6400692974 /* CameraViewController.m in Sources */,
+				25D792E61CB29AC300692974 /* RootViewController.m in Sources */,
+				2595D0761CB4F65400AA313E /* PreviewView.m in Sources */,
+				25D793201CB2B59000692974 /* MagicCamera.xcdatamodeld in Sources */,
+				2595D07C1CB5249000AA313E /* ForegroundView.m in Sources */,
+				2595D0791CB5125A00AA313E /* PathModel.m in Sources */,
 				25D792E31CB29AC300692974 /* AppDelegate.m in Sources */,
-				25D792EC1CB29AC300692974 /* MagicCamera.xcdatamodeld in Sources */,
 				25D792E01CB29AC300692974 /* main.m in Sources */,
+				25D7931D1CB2AEDA00692974 /* LeftViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -314,30 +441,12 @@
 		};
 /* End PBXTargetDependency section */
 
-/* Begin PBXVariantGroup section */
-		25D792E71CB29AC300692974 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				25D792E81CB29AC300692974 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		25D792EF1CB29AC300692974 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				25D792F01CB29AC300692974 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
-
 /* Begin XCBuildConfiguration section */
 		25D793091CB29AC400692974 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -382,6 +491,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -418,8 +528,11 @@
 		};
 		25D7930C1CB29AC400692974 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DB6A4451D3377791025EB06A /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = MagicCamera/PrefixHeader.pch;
 				INFOPLIST_FILE = MagicCamera/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = pw.lxf.MagicCamera;
@@ -429,8 +542,11 @@
 		};
 		25D7930D1CB29AC400692974 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F2A26175DCA65F245DB348B5 /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = MagicCamera/PrefixHeader.pch;
 				INFOPLIST_FILE = MagicCamera/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = pw.lxf.MagicCamera;
@@ -503,6 +619,7 @@
 				25D7930D1CB29AC400692974 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		25D7930E1CB29AC400692974 /* Build configuration list for PBXNativeTarget "MagicCameraTests" */ = {
 			isa = XCConfigurationList;
@@ -511,6 +628,7 @@
 				25D793101CB29AC400692974 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		25D793111CB29AC400692974 /* Build configuration list for PBXNativeTarget "MagicCameraUITests" */ = {
 			isa = XCConfigurationList;
@@ -519,16 +637,17 @@
 				25D793131CB29AC400692974 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		25D792EA1CB29AC300692974 /* MagicCamera.xcdatamodeld */ = {
+		25D7931E1CB2B59000692974 /* MagicCamera.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				25D792EB1CB29AC300692974 /* MagicCamera.xcdatamodel */,
+				25D7931F1CB2B59000692974 /* MagicCamera.xcdatamodel */,
 			);
-			currentVersion = 25D792EB1CB29AC300692974 /* MagicCamera.xcdatamodel */;
+			currentVersion = 25D7931F1CB2B59000692974 /* MagicCamera.xcdatamodel */;
 			path = MagicCamera.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

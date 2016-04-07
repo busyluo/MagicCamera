@@ -1,0 +1,34 @@
+//
+//  PrefixHeader.pch
+//  MagicCamera
+//
+//  Created by Xavier on 4/4/16.
+//  Copyright © 2016 busyluo. All rights reserved.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+#import <Availability.h>
+
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import "Masonry.h"
+#import "EXTScope.h"
+#import "BlocksKit.h"
+#import "BlocksKit+UIKit.h"
+
+
+#define RGB(c,a)    [UIColor colorWithRed:((c>>16)&0xFF)/256.0  green:((c>>8)&0xFF)/256.0   blue:((c)&0xFF)/256.0   alpha:a]
+
+
+#define kScreenHeight ([UIScreen mainScreen].bounds.size.height)
+#define kScreenWidth  ([UIScreen mainScreen].bounds.size.width)
+
+#define kDeviceOSVersion ([[[UIDevice currentDevice] systemVersion] floatValue])
+
+#define kAppDelegate ((AppDelegate *)[UIApplication sharedApplication].delegate)
+
+//static NSString * const kShowMenuNotification = @"ShowMenuNotificaion";
+
+#endif /* PrefixHeader_pch */

@@ -7,6 +7,8 @@
 //
 
 #import "AppDelegate.h"
+#import "RootViewController.h"
+#import "CameraViewController.h"
 
 @interface AppDelegate ()
 
@@ -17,6 +19,15 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    self.window.backgroundColor = [UIColor whiteColor];
+    
+    CameraViewController *cameraViewController = [[CameraViewController alloc] init];
+    RootViewController *sideViewController = [[RootViewController alloc] initWithRootViewController:cameraViewController];
+    cameraViewController.sideViewControllerDelegate = sideViewController;
+    
+    self.window.rootViewController = sideViewController;
+    [self.window makeKeyAndVisible];
     return YES;
 }
 

@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  SideViewController.h
 //  MagicCamera
 //
 //  Created by Xavier on 4/4/16.
@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
-
+@interface LeftViewController : UITableViewController
 
 @end
-
