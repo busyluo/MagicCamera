@@ -11,36 +11,55 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 #import "PreviewView.h"
 #import "ForegroundView.h"
+#import "UIImage+fixOrientation.h"
 
-@interface CameraViewController ()
+@import AVFoundation;
+@import Photos;
 
-//Views
-@property (strong, nonatomic) UIButton *backButton;
-@property (strong, nonatomic) UIButton *flashButton;
-@property (strong, nonatomic) UIButton *timerButton;
-@property (strong, nonatomic) UIButton *switchButton;
+static void * CapturingStillImageContext = &CapturingStillImageContext;
+static void * SessionRunningContext = &SessionRunningContext;
 
-@property (strong, nonatomic) UIButton *resetScopeButton;
-@property (strong, nonatomic) UIButton *resetPhotoButton;
-@property (strong, nonatomic) UIButton *undoScopeButton;
-@property (strong, nonatomic) UIButton *undoPhotoButton;
-@property (strong, nonatomic) UIButton *startButton;
+typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
+    AVCamSetupResultSuccess,
+    AVCamSetupResultCameraNotAuthorized,
+    AVCamSetupResultSessionConfigurationFailed
+};
 
-@property (strong, nonatomic) PreviewView *previewView;         //显示相机预览图
-@property (strong, nonatomic) ForegroundView *foregroundView;   //显示分割路径以及提示
+@interface CameraViewController (){
+    CGColorSpaceRef imageColorRef;
+    CGContextRef imageContextRef;
+}
 
-//AVFoundation
-@property (strong, nonatomic) dispatch_queue_t sessionQueue;
-@property (strong, nonatomic) AVCaptureSession* session;                    //AVCaptureSession对象来执行输入设备和输出设备之间的数据传递
-@property (strong, nonatomic) AVCaptureDeviceInput* videoInput;             // 输入设备
-@property (strong, nonatomic) AVCaptureStillImageOutput* stillImageOutput;  //照片输出流
+// Views
+@property (nonatomic) UIButton *menuButton;
+@property (nonatomic) UIButton *flashButton;
+//@property (nonatomic) UIButton *timerButton;
+@property (nonatomic) UIButton *focusIn;
+@property (nonatomic) UIButton *focusOut;
+@property (nonatomic) UIButton *switchButton;
 
-@property (strong, nonatomic) AVCaptureVideoPreviewLayer* previewLayer;     //预览图层
-@property (strong, nonatomic) CALayer* previewLayer2;                       //预览图层
-@property (assign, nonatomic) CGFloat beginGestureScale;                    //记录开始的缩放比例
-@property (assign, nonatomic) CGFloat effectiveScale;                       //最后的缩放比例
+@property (nonatomic) UIButton *resetButton;
+@property (nonatomic) UIButton *undoButton;
+@property (nonatomic) UIButton *startButton;
+
+@property (nonatomic) PreviewView *previewView;
+@property (nonatomic) UIImageView *photoView;
+@property (nonatomic) ForegroundView *foregroundView;
+
+// Session management.
+@property (nonatomic) dispatch_queue_t sessionQueue;
+@property (nonatomic) AVCaptureSession *session;
+@property (nonatomic) AVCaptureDeviceInput *videoDeviceInput;
+@property (nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
+@property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
+
+// Utilities.
+@property (nonatomic) AVCamSetupResult setupResult;
+@property (nonatomic, getter=isSessionRunning) BOOL sessionRunning;
+@property (nonatomic) UIBackgroundTaskIdentifier backgroundRecordingID;
 
 @end
+
 
 @implementation CameraViewController
 
@@ -56,28 +75,15 @@
 
 - (void)loadView {
     [super loadView];
-    self.view.backgroundColor = [UIColor blackColor];
     
+    [self configureViews];
     [self configureButtons];
-
-    self.previewView = [[PreviewView alloc] initWithFrame:CGRectMake(0, 40, kScreenWidth, kScreenHeight - 100)];
-    self.previewView.backgroundColor = [UIColor greenColor];
-    [self.view addSubview:self.previewView];
-    
-    self.foregroundView = [[ForegroundView alloc] initWithFrame:CGRectMake(0, 40, kScreenWidth, kScreenHeight - 100)];
-    self.foregroundView.backgroundColor = [UIColor clearColor];
-    
-    [self.view addSubview:self.foregroundView];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
     [self initAVCaptureSession];
-    
-    [self.session startRunning];
-    
-    self.effectiveScale = self.beginGestureScale = 1.0f;
 }
 
 - (void)viewWillAppear:(BOOL)animated{
@@ -86,27 +92,21 @@
     
     [self.sideViewControllerDelegate shouldDisableGesture];
     
-    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didRotateDeviceChangeNotification:)
-                                                 name:UIDeviceOrientationDidChangeNotification
-                                               object:nil];
-    
-    if (self.session) {
-        [self.session startRunning];
-    }
+    [self sessionStartRunning];
 }
 
 - (void)viewDidDisappear:(BOOL)animated{
     
-    [super viewDidDisappear:YES];
-    
     [self.sideViewControllerDelegate shouldEnableGesture];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
     
-    if (self.session) {
-        [self.session stopRunning];
-    }
+    dispatch_async( self.sessionQueue, ^{
+        if ( self.setupResult == AVCamSetupResultSuccess ) {
+            [self.session stopRunning];
+            [self removeObservers];
+        }
+    } );
+    
+    [super viewDidDisappear:YES];
 }
 
 
@@ -129,138 +129,150 @@
 -(void)didRotateDeviceChangeNotification:(NSNotification *)notification {
     UIDeviceOrientation currentDeviceOrientation =  [[UIDevice currentDevice] orientation];
     /*if ((newOrientation == UIInterfaceOrientationLandscapeLeft || newOrientation == UIInterfaceOrientationLandscapeRight))
-    {
-    }*/
+     {
+     }*/
     NSLog(@"%ld", currentDeviceOrientation);
 }
-
-//http://www.jianshu.com/p/f014d0dfeac3
 
 #pragma mark - AVCapture
 - (void)initAVCaptureSession{
     
-    /*
-     session的一端是相机的输入，另一端是输出到相册
-     */
-    
-    NSError *error;
-    
-    //初始化输入端
-    AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    if ([device lockForConfiguration:&error]) {      //You must call this method before attempting to configure the hardware related properties of the device.
-        [device setFlashMode:AVCaptureFlashModeAuto];//设置闪光灯为自动
-        [device unlockForConfiguration];
-    } else {
-        NSLog(@"%@",error);
-    }
-
-    
-    self.videoInput = [[AVCaptureDeviceInput alloc] initWithDevice:device error:&error];
-    if (error) {
-        NSLog(@"%@",error);
-    }
-    
-    //初始化输出端
-    self.stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
-    NSDictionary * outputSettings = [[NSDictionary alloc] initWithObjectsAndKeys:AVVideoCodecJPEG,AVVideoCodecKey, nil];//输出设置。AVVideoCodecJPEG   输出jpeg格式图片
-    [self.stillImageOutput setOutputSettings:outputSettings];
-    
-    //初始化连接
+    // Create the AVCaptureSession.
     self.session = [[AVCaptureSession alloc] init];
-    if ([self.session canSetSessionPreset:AVCaptureSessionPreset1280x720]) {
-        self.session.sessionPreset = AVCaptureSessionPreset1280x720;  //默认是AVCaptureSessionPresetHigh
+    
+    // Setup the preview view.
+    self.previewView.session = self.session;
+    
+    // Communicate with the session and other session objects on this queue.
+    self.sessionQueue = dispatch_queue_create( "session queue", DISPATCH_QUEUE_SERIAL );
+    
+    self.setupResult = AVCamSetupResultSuccess;
+    
+    // Check video authorization status. Video access is required and audio access is optional.
+    // If audio access is denied, audio is not recorded during movie recording.
+    switch ( [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] ) {
+        case AVAuthorizationStatusAuthorized: {
+            // The user has previously granted access to the camera.
+            break;
+        }
+        case AVAuthorizationStatusNotDetermined: {
+            dispatch_suspend( self.sessionQueue );
+            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^( BOOL granted ) {
+                if ( ! granted ) {
+                    self.setupResult = AVCamSetupResultCameraNotAuthorized;
+                }
+                dispatch_resume( self.sessionQueue );
+            }];
+            break;
+        }
+        default: {
+            // The user has previously denied access.
+            self.setupResult = AVCamSetupResultCameraNotAuthorized;
+            break;
+        }
     }
-    else {
-        // Handle the failure.
-    }
     
-    //将输入和输出端添加到连接中
-    if ([self.session canAddInput:self.videoInput]) {
-        [self.session addInput:self.videoInput];
-    }
-    if ([self.session canAddOutput:self.stillImageOutput]) {
-        [self.session addOutput:self.stillImageOutput];
-    }
-    
-    //初始化预览图层
-    self.previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
-    /*
-     AVLayerVideoGravityResizeAspect      保持长宽比，显示所有内容，可能会有白边
-     AVLayerVideoGravityResizeAspectFill  保持长宽比，填充图层，会有一部分内容无法显示
-     AVLayerVideoGravityResize            拉伸以填满图层
-     */
-    [self.previewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-    //self.previewLayer.contents = (id)[UIImage imageNamed:@"test"].CGImage;
-    
-    ////////////////
-    CGFloat radius = 30.0;
-    
-    CGSize size = self.previewView.frame.size;
-    CAShapeLayer *shapeLayer = [CAShapeLayer layer];
-    [shapeLayer setFillColor:[[UIColor whiteColor] CGColor]];
-    
-    CGMutablePathRef path = CGPathCreateMutable();
-    CGPathMoveToPoint(path, NULL, size.width - radius, size.height);
-    CGPathAddArc(path, NULL, size.width-radius, size.height-radius, radius, M_PI/2, 0.0, YES);
-    CGPathAddLineToPoint(path, NULL, size.width, 0.0);
-    CGPathAddLineToPoint(path, NULL, 110.0, 0.0);
-    CGPathAddLineToPoint(path, NULL, 0.0, size.height - radius);
-    CGPathAddArc(path, NULL, radius, size.height - radius, radius, M_PI, M_PI/2, YES);
-    CGPathCloseSubpath(path);
-    [shapeLayer setPath:path];
-    CFRelease(path);
+    dispatch_async( self.sessionQueue, ^{
+        if ( self.setupResult != AVCamSetupResultSuccess ) {
+            return;
+        }
+        
+        self.backgroundRecordingID = UIBackgroundTaskInvalid;
+        NSError *error = nil;
+        
+        AVCaptureDevice *videoDevice = [CameraViewController deviceWithMediaType:AVMediaTypeVideo preferringPosition:AVCaptureDevicePositionBack];
+        AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
+        
+        if ( ! videoDeviceInput ) {
+            NSLog( @"Could not create video device input: %@", error );
+        }
+        
+        [self.session beginConfiguration];
+        
+        if ([self.session canSetSessionPreset:AVCaptureSessionPresetPhoto]) {
+            self.session.sessionPreset = AVCaptureSessionPresetPhoto;  //默认是AVCaptureSessionPresetHigh
+        }
+        else {
+            NSLog( @"Could not set the preset" );
+        }
+        
+        if ( [self.session canAddInput:videoDeviceInput] ) {
+            [self.session addInput:videoDeviceInput];
+            self.videoDeviceInput = videoDeviceInput;
+            
+            dispatch_async( dispatch_get_main_queue(), ^{
+                UIInterfaceOrientation statusBarOrientation = [UIApplication sharedApplication].statusBarOrientation;
+                AVCaptureVideoOrientation initialVideoOrientation = AVCaptureVideoOrientationPortrait;
+                if ( statusBarOrientation != UIInterfaceOrientationUnknown ) {
+                    initialVideoOrientation = (AVCaptureVideoOrientation)statusBarOrientation;
+                }
+                AVCaptureVideoPreviewLayer *previewLayer = (AVCaptureVideoPreviewLayer *)self.previewView.layer;
+                previewLayer.connection.videoOrientation = initialVideoOrientation;
+                [previewLayer setVideoGravity:AVLayerVideoGravityResizeAspect];
+            } );
+        }
+        else {
+            NSLog( @"Could not add video device input to the session" );
+            self.setupResult = AVCamSetupResultSessionConfigurationFailed;
+        }
+        
+        AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
+        if ( [self.session canAddOutput:stillImageOutput] ) {
+            stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
+            [self.session addOutput:stillImageOutput];
+            self.stillImageOutput = stillImageOutput;
+        }
+        else {
+            NSLog( @"Could not add still image output to the session" );
+            self.setupResult = AVCamSetupResultSessionConfigurationFailed;
+        }
+        
+        [self.session commitConfiguration];
+    } );
+}
 
+- (void) sessionStartRunning {
     
-    self.previewLayer.frame = self.previewView.bounds;
-    //self.previewLayer.mask = shapeLayer;
-    [self.previewView.layer addSublayer:self.previewLayer];
-    //////////////////////////
-    
-    self.previewLayer2 = [CALayer layer];
-    self.previewLayer2.frame = self.previewView.bounds;
-    self.previewLayer2.contents = (id)[UIImage imageNamed:@"test"].CGImage;
-    
-    CAShapeLayer *layer2 = [CAShapeLayer layer];
-    layer2.frame = self.previewView.bounds;
-    
-    CGMutablePathRef path2 = CGPathCreateMutable();
-    CGPathMoveToPoint(path2, NULL, 0.0, 0.0);
-    CGPathAddLineToPoint(path2, NULL, 110.0, 0.0);
-    CGPathAddLineToPoint(path2, NULL, 0.0, size.height - radius);
-    CGPathMoveToPoint(path2, NULL, 0.0, 0.0);
-    CGPathCloseSubpath(path2);
-    [layer2 setPath:path2];
-    CFRelease(path2);
-    
-    self.previewLayer2.frame = self.previewView.bounds;
-    self.previewLayer2.mask = layer2;
-    //[self.previewView.layer addSublayer:self.previewLayer2];
-    
-    /*
-
-    CAShapeLayer *layer2 = [CAShapeLayer layer];
-    layer2.frame = self.previewView.bounds;
-    //layer2.zPosition = 0;
-    
-    UIImage *image = [UIImage imageNamed:@"test"];
-    layer2.contents = (id)image.CGImage;
-    //layer2.backgroundColor = [UIColor clearColor].CGColor;
-
-    //[layer2 setFillColor:[[UIColor whiteColor] CGColor]];
-    
-    CGMutablePathRef path2 = CGPathCreateMutable();
-    CGPathMoveToPoint(path2, NULL, 0.0, 0.0);
-    CGPathAddLineToPoint(path2, NULL, 110.0, 0.0);
-    CGPathAddLineToPoint(path2, NULL, 0.0, size.height - radius);
-    CGPathMoveToPoint(path2, NULL, 0.0, 0.0);
-    CGPathCloseSubpath(path2);
-    [layer2 setPath:path2];
-    CFRelease(path2);
-    
-    
-    self.previewLayer2.frame = self.previewView.bounds;
-    //self.previewLayer2.mask = layer2;
-    [self.previewView.layer addSublayer:layer2];*/
+    dispatch_async( self.sessionQueue, ^{
+        switch ( self.setupResult )
+        {
+            case AVCamSetupResultSuccess:
+            {
+                // Only setup observers and start the session running if setup succeeded.
+                [self addObservers];
+                [self.session startRunning];
+                self.sessionRunning = self.session.isRunning;
+                break;
+            }
+            case AVCamSetupResultCameraNotAuthorized:
+            {
+                dispatch_async( dispatch_get_main_queue(), ^{
+                    NSString *message = NSLocalizedString( @"AVCam doesn't have permission to use the camera, please change privacy settings", @"Alert message when the user has denied access to the camera" );
+                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"AVCam" message:message preferredStyle:UIAlertControllerStyleAlert];
+                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString( @"OK", @"Alert OK button" ) style:UIAlertActionStyleCancel handler:nil];
+                    [alertController addAction:cancelAction];
+                    // Provide quick access to Settings.
+                    UIAlertAction *settingsAction = [UIAlertAction actionWithTitle:NSLocalizedString( @"Settings", @"Alert button to open Settings" ) style:UIAlertActionStyleDefault handler:^( UIAlertAction *action ) {
+                        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+                    }];
+                    [alertController addAction:settingsAction];
+                    [self presentViewController:alertController animated:YES completion:nil];
+                } );
+                break;
+            }
+            case AVCamSetupResultSessionConfigurationFailed:
+            {
+                dispatch_async( dispatch_get_main_queue(), ^{
+                    NSString *message = NSLocalizedString( @"Unable to capture media", @"Alert message when something goes wrong during capture session configuration" );
+                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"AVCam" message:message preferredStyle:UIAlertControllerStyleAlert];
+                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString( @"OK", @"Alert OK button" ) style:UIAlertActionStyleCancel handler:nil];
+                    [alertController addAction:cancelAction];
+                    [self presentViewController:alertController animated:YES completion:nil];
+                } );
+                break;
+            }
+        }
+    } );
 }
 
 #pragma mark - private method
@@ -268,57 +280,440 @@
 - (void) configureButtons {
     
     //top
-    self.backButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.backButton.frame = CGRectMake(0.0, 0.0, 40.0, 40.0);
-    [self.backButton setTitle:@"三" forState:UIControlStateNormal];
-    [self.view addSubview:self.backButton];
-    [self.backButton bk_addEventHandler:^(id sender) {
-        [self.sideViewControllerDelegate showLeftViewController];
-    } forControlEvents:UIControlEventTouchUpInside];
+    self.menuButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.menuButton.frame = CGRectMake(0.0, 0.0, 40.0, 40.0);
+    [self.menuButton setTitle:@"三" forState:UIControlStateNormal];
+    [self.view addSubview:self.menuButton];
+    [self.menuButton addTarget:self action:@selector(showMenu:) forControlEvents:UIControlEventTouchUpInside];
     
     self.flashButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.flashButton.frame = CGRectMake(kScreenWidth / 3.0 - 20, 0.0, 40.0, 40.0);
+    self.flashButton.frame = CGRectMake(kScreenWidth / 4.0 - 20, 0.0, 40.0, 40.0);
     [self.flashButton setTitle:@"X" forState:UIControlStateNormal];
     [self.view addSubview:self.flashButton];
+    [self.flashButton addTarget:self action:@selector(changeFlash:) forControlEvents:UIControlEventTouchUpInside];
     
-    self.timerButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.timerButton.frame = CGRectMake( 2 * kScreenWidth / 3.0 - 20, 0.0, 40.0, 40.0);
-    [self.timerButton setTitle:@"O" forState:UIControlStateNormal];
-    [self.view addSubview:self.timerButton];
+    self.focusOut = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.focusOut.frame = CGRectMake( 2 * kScreenWidth / 4.0 - 20, 0.0, 40.0, 40.0);
+    [self.focusOut setTitle:@"-" forState:UIControlStateNormal];
+    [self.view addSubview:self.focusOut];
+    [self.focusOut addTarget:self action:@selector(focusOut:) forControlEvents:UIControlEventTouchUpInside];
+    
+    self.focusIn = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.focusIn.frame = CGRectMake( 3 * kScreenWidth / 4.0 - 20, 0.0, 40.0, 40.0);
+    [self.focusIn setTitle:@"+" forState:UIControlStateNormal];
+    [self.view addSubview:self.focusIn];
+    [self.focusIn addTarget:self action:@selector(focusIn:) forControlEvents:UIControlEventTouchUpInside];
     
     self.switchButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.switchButton.frame = CGRectMake(kScreenWidth - 40, 0.0, 40.0, 40.0);
     [self.view addSubview:self.switchButton];
     [self.switchButton setTitle:@"S" forState:UIControlStateNormal];
+    [self.switchButton addTarget:self action:@selector(changeCamera:) forControlEvents:UIControlEventTouchUpInside];
     
     //bottom
-    self.resetScopeButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.resetScopeButton.frame = CGRectMake(20, kScreenHeight - 40.0, 40.0, 40.0);
-    [self.resetScopeButton setTitle:@"R" forState:UIControlStateNormal];
-    [self.view addSubview:self.resetScopeButton];
+    self.resetButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.resetButton.frame = CGRectMake(20, kScreenHeight - 40.0, 40.0, 40.0);
+    [self.resetButton setTitle:@"R" forState:UIControlStateNormal];
+    [self.view addSubview:self.resetButton];
+    [self.resetButton addTarget:self action:@selector(reset:) forControlEvents:UIControlEventTouchUpInside];
     
-    self.undoScopeButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.undoScopeButton.frame = CGRectMake(kScreenWidth / 5, kScreenHeight - 40.0, 40.0, 40.0);
-    [self.undoScopeButton setTitle:@"U" forState:UIControlStateNormal];
-    [self.view addSubview:self.undoScopeButton];
+    self.undoButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.undoButton.frame = CGRectMake(kScreenWidth - 60, kScreenHeight - 40.0, 40.0, 40.0);
+    [self.undoButton setTitle:@"U" forState:UIControlStateNormal];
+    [self.view addSubview:self.undoButton];
+    [self.undoButton addTarget:self action:@selector(undo:) forControlEvents:UIControlEventTouchUpInside];
     
     self.startButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.startButton.frame = CGRectMake(kScreenWidth / 2 - 30, kScreenHeight - 60.0, 60.0, 60.0);
-    [self.startButton setTitle:@"()" forState:UIControlStateNormal];
+    [self.startButton setTitle:@"O" forState:UIControlStateNormal];
     [self.view addSubview:self.startButton];
+    [self.startButton addTarget:self action:@selector(start:) forControlEvents:UIControlEventTouchDown];
+}
+
+- (void) configureViews {
+    self.previewView = [[PreviewView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
+    self.previewView.backgroundColor = [UIColor blackColor];
+    [self.view addSubview:self.previewView];
     
-    self.undoPhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.undoPhotoButton.frame = CGRectMake(kScreenWidth * 4 / 5.0 - 40, kScreenHeight - 40.0, 40.0, 40.0);
-    [self.undoPhotoButton setTitle:@"U`" forState:UIControlStateNormal];
-    [self.view addSubview:self.undoPhotoButton];
+    CGFloat photoHeight = kScreenWidth / 3.0 * 4.0;
+    CGFloat photoViewOriginY = (kScreenHeight - photoHeight) / 2.0;
+    self.photoView = [[UIImageView alloc] initWithFrame:CGRectMake(0, photoViewOriginY, kScreenWidth, photoHeight)];
+    self.photoView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:self.photoView];
     
-    self.undoScopeButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.undoScopeButton.frame = CGRectMake(kScreenWidth - 60, kScreenHeight - 40.0, 40.0, 40.0);
-    [self.undoScopeButton setTitle:@"R`" forState:UIControlStateNormal];
-    [self.view addSubview:self.undoScopeButton];
+    self.foregroundView = [[ForegroundView alloc] initWithFrame:CGRectMake(0, photoViewOriginY, kScreenWidth, photoHeight)];
+    self.foregroundView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:self.foregroundView];
+    
+    self.view.backgroundColor = [UIColor blackColor];
+}
+
+#pragma mark Device Configuration
+
+- (void)focusWithMode:(AVCaptureFocusMode)focusMode exposeWithMode:(AVCaptureExposureMode)exposureMode atDevicePoint:(CGPoint)point monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
+{
+    dispatch_async( self.sessionQueue, ^{
+        AVCaptureDevice *device = self.videoDeviceInput.device;
+        NSError *error = nil;
+        if ( [device lockForConfiguration:&error] ) {
+            // Setting (focus/exposure)PointOfInterest alone does not initiate a (focus/exposure) operation.
+            // Call -set(Focus/Exposure)Mode: to apply the new point of interest.
+            if ( device.isFocusPointOfInterestSupported && [device isFocusModeSupported:focusMode] ) {
+                device.focusPointOfInterest = point;
+                device.focusMode = focusMode;
+            }
+            
+            if ( device.isExposurePointOfInterestSupported && [device isExposureModeSupported:exposureMode] ) {
+                device.exposurePointOfInterest = point;
+                device.exposureMode = exposureMode;
+            }
+            
+            device.subjectAreaChangeMonitoringEnabled = monitorSubjectAreaChange;
+            [device unlockForConfiguration];
+        }
+        else {
+            NSLog( @"Could not lock device for configuration: %@", error );
+        }
+    } );
+}
+
++ (void)setFlashMode:(AVCaptureFlashMode)flashMode forDevice:(AVCaptureDevice *)device
+{
+    if ( device.hasFlash && [device isFlashModeSupported:flashMode] ) {
+        NSError *error = nil;
+        if ( [device lockForConfiguration:&error] ) {
+            device.flashMode = flashMode;
+            [device unlockForConfiguration];
+        }
+        else {
+            NSLog( @"Could not lock device for configuration: %@", error );
+        }
+    }
+}
+
++ (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position
+{
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:mediaType];
+    AVCaptureDevice *captureDevice = devices.firstObject;
+    
+    for ( AVCaptureDevice *device in devices ) {
+        if ( device.position == position ) {
+            captureDevice = device;
+            break;
+        }
+    }
+    
+    return captureDevice;
+}
+
+
+
+#pragma mark KVO and Notifications
+
+- (void)addObservers
+{
+    [self.session addObserver:self forKeyPath:@"running" options:NSKeyValueObservingOptionNew context:SessionRunningContext];
+    [self.stillImageOutput addObserver:self forKeyPath:@"capturingStillImage" options:NSKeyValueObservingOptionNew context:CapturingStillImageContext];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(subjectAreaDidChange:)
+                                                 name:AVCaptureDeviceSubjectAreaDidChangeNotification
+                                               object:self.videoDeviceInput.device];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didRotateDeviceChangeNotification:)
+                                                 name:UIDeviceOrientationDidChangeNotification
+                                               object:nil];
+}
+
+- (void)removeObservers
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    [self.session removeObserver:self forKeyPath:@"running" context:SessionRunningContext];
+    [self.stillImageOutput removeObserver:self forKeyPath:@"capturingStillImage" context:CapturingStillImageContext];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if ( context == CapturingStillImageContext ) {
+        BOOL isCapturingStillImage = [change[NSKeyValueChangeNewKey] boolValue];
+        
+        if ( isCapturingStillImage ) {
+            dispatch_async( dispatch_get_main_queue(), ^{
+                self.previewView.layer.opacity = 0.0;
+                [UIView animateWithDuration:0.25 animations:^{
+                    self.previewView.layer.opacity = 1.0;
+                }];
+            } );
+        }
+    }
+    else if ( context == SessionRunningContext ) {
+        //BOOL isSessionRunning = [change[NSKeyValueChangeNewKey] boolValue];
+        
+        dispatch_async( dispatch_get_main_queue(), ^{
+            // Only enable the ability to change camera if the device has more than one camera.
+            
+        } );
+    }
+    else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
+- (void)subjectAreaDidChange:(NSNotification *)notification
+{
+    CGPoint devicePoint = CGPointMake( 0.5, 0.5 );
+    [self focusWithMode:AVCaptureFocusModeContinuousAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:devicePoint monitorSubjectAreaChange:NO];
 }
 
 #pragma mark - Actions
 
+- (IBAction) showMenu:(id)sender {
+    [self.sideViewControllerDelegate showLeftViewController];
+}
+
+- (IBAction) changeFlash:(id)sender {
+    NSLog(@"changeFlash");
+}
+
+- (IBAction) focusIn:(id)sender {
+    NSLog(@"focusIn");
+}
+
+- (IBAction) focusOut:(id)sender {
+    NSLog(@"focusOut");
+}
+
+- (IBAction) changeCamera:(id)sender {
+    NSLog(@"changeCamera");
+}
+
+- (IBAction) undo:(id)sender {
+    NSLog(@"undo");
+}
+
+- (IBAction) reset:(id)sender {
+    NSLog(@"reset");
+    
+    //NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
+    //UIImage *image = [UIImage imageWithData: imageData];
+    UIImage *image1 = [UIImage imageNamed:@"test"];
+    UIImage *image2 = [UIImage imageNamed:@"test"];
+    
+    //UIGraphicsBeginImageContext(image.size);
+    //viewRect = self.foregroundView.bounds;
+    
+    CGColorSpaceRef colorRef = CGColorSpaceCreateDeviceRGB();
+    CGContextRef contextRef = CGBitmapContextCreate(nil, image1.size.width, image1.size.height, 8, image1.size.width*4, colorRef, kCGImageAlphaPremultipliedFirst);
+    CGContextSaveGState(contextRef);
+    CGMutablePathRef mutPath = CGPathCreateMutable();
+    CGPathMoveToPoint(mutPath, NULL, 0, 0);
+    CGPathAddLineToPoint(mutPath, NULL, 0, image1.size.height);
+    CGPathAddLineToPoint(mutPath, NULL, image1.size.width / 2, image1.size.height);
+    CGPathAddLineToPoint(mutPath, NULL, image1.size.width / 2, 0);
+    CGPathCloseSubpath(mutPath);
+    CGContextAddPath(contextRef, mutPath);
+    CGContextClip(contextRef);
+    CGContextDrawImage(contextRef, CGRectMake(0, 0, image1.size.width, image1.size.height), image1.CGImage);
+    CGContextRestoreGState(contextRef);
+    
+    CGContextSaveGState(contextRef);
+    CGMutablePathRef mutPath2 = CGPathCreateMutable();
+    CGPathMoveToPoint(mutPath2, NULL, image1.size.width / 2, 0);
+    CGPathAddLineToPoint(mutPath2, NULL, image1.size.width / 2, image1.size.height);
+    CGPathAddLineToPoint(mutPath2, NULL, image1.size.width, image1.size.height);
+    CGPathAddLineToPoint(mutPath2, NULL, image1.size.width, 0);
+    CGPathCloseSubpath(mutPath2);
+    CGContextAddPath(contextRef, mutPath2);
+    CGContextClip(contextRef);
+    CGContextDrawImage(contextRef, CGRectMake(0, 0, image2.size.width, image2.size.height), image2.CGImage);
+    CGContextRestoreGState(contextRef);
+    
+    
+    CGImageRef imageRef = CGBitmapContextCreateImage(contextRef);
+    UIImage* imageDst = [UIImage imageWithCGImage:imageRef scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp];
+    CGContextRelease(contextRef);
+    CGColorSpaceRelease(colorRef);
+    
+    UIImage *compressedImage = [CameraViewController compressImage:imageDst];
+    self.photoView.image =  compressedImage;
+}
+
+
+
+- (IBAction) start:(id)sender {
+    NSLog(@"start");
+    self.startButton.enabled = NO;
+    
+    dispatch_async( self.sessionQueue, ^{
+        AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
+        AVCaptureVideoPreviewLayer *previewLayer = (AVCaptureVideoPreviewLayer *)self.previewView.layer;
+        
+        NSLog(@"%f,%f,%f,%f", previewLayer.frame.origin.x, previewLayer.frame.origin.y,
+              previewLayer.frame.size.width, previewLayer.frame.size.height);
+        
+        // Update the orientation on the still image output video connection before capturing.
+        connection.videoOrientation = previewLayer.connection.videoOrientation;
+        
+        // Flash set to Auto for Still Capture.
+        [CameraViewController setFlashMode:AVCaptureFlashModeOff forDevice:self.videoDeviceInput.device];
+        
+        // Capture a still image.
+        [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^( CMSampleBufferRef imageDataSampleBuffer, NSError *error ) {
+            if ( imageDataSampleBuffer ) {
+                // The sample buffer is not retained. Create image data before saving the still image to the photo library asynchronously.
+                NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
+                UIImage *image = [UIImage imageWithData:imageData];
+                image = [image fixOrientation];
+                
+                CGImageRef imageRef = [image CGImage];
+                UIImage* imageDst;
+                
+                CGFloat height = self.foregroundView.frame.size.height;
+                CGFloat scala = image.size.height / height;
+                
+                if (!imageContextRef) {
+                    imageContextRef = CGBitmapContextCreate(NULL, image.size.width, image.size.height,
+                                                            CGImageGetBitsPerComponent(image.CGImage), 0,
+                                                            CGImageGetColorSpace(image.CGImage),
+                                                            kCGImageAlphaPremultipliedLast);
+                    
+                    CGContextSaveGState(imageContextRef);
+                    CGAffineTransform pathTransform = CGAffineTransformTranslate(CGAffineTransformScale(CGAffineTransformIdentity, scala, -scala), 0, -height);
+                    CGMutablePathRef mutPath = CGPathCreateMutableCopyByTransformingPath(self.foregroundView.firstPath, &pathTransform);
+                    CGContextAddPath(imageContextRef, mutPath);
+                    CGContextClip(imageContextRef);
+                    CGContextDrawImage(imageContextRef, CGRectMake(0, 0, image.size.width, image.size.height), imageRef);
+                    CGImageRef imageRef = CGBitmapContextCreateImage(imageContextRef);
+                    imageDst = [UIImage imageWithCGImage:imageRef];
+                    
+                    CGContextRestoreGState(imageContextRef);
+                } else {
+                    CGContextSaveGState(imageContextRef);
+                    CGAffineTransform pathTransform = CGAffineTransformTranslate(CGAffineTransformScale(CGAffineTransformIdentity, scala, -scala), 0, -height);
+                    CGMutablePathRef mutPath = CGPathCreateMutableCopyByTransformingPath(self.foregroundView.secondPath, &pathTransform);
+                    CGContextAddPath(imageContextRef, mutPath);
+                    CGContextClip(imageContextRef);
+                    CGContextDrawImage(imageContextRef, CGRectMake(0, 0, image.size.width, image.size.height), image.CGImage);
+                    CGContextRestoreGState(imageContextRef);
+                    
+                    CGImageRef imageRef = CGBitmapContextCreateImage(imageContextRef);
+                    imageDst = [UIImage imageWithCGImage:imageRef];
+                    
+                    CGContextRelease(imageContextRef);
+                }
+                
+                dispatch_async( dispatch_get_main_queue(), ^{
+                    self.photoView.image =  imageDst;
+                    self.startButton.enabled = YES;
+                } );
+                
+                /*
+                 [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
+                 if ( status == PHAuthorizationStatusAuthorized ) {
+                 // To preserve the metadata, we create an asset from the JPEG NSData representation.
+                 // Note that creating an asset from a UIImage discards the metadata.
+                 // In iOS 9, we can use -[PHAssetCreationRequest addResourceWithType:data:options].
+                 // In iOS 8, we save the image to a temporary file and use +[PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:].
+                 if ( [PHAssetCreationRequest class] ) {
+                 [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+                 //[[PHAssetCreationRequest creationRequestForAsset] addResourceWithType:PHAssetResourceTypePhoto data:imageData options:nil];
+                 [PHAssetCreationRequest creationRequestForAssetFromImage:image];
+                 } completionHandler:^( BOOL success, NSError *error ) {
+                 if ( ! success ) {
+                 NSLog( @"Error occurred while saving image to photo library: %@", error );
+                 }
+                 }];
+                 }
+                 else {
+                 NSString *temporaryFileName = [NSProcessInfo processInfo].globallyUniqueString;
+                 NSString *temporaryFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[temporaryFileName stringByAppendingPathExtension:@"jpg"]];
+                 NSURL *temporaryFileURL = [NSURL fileURLWithPath:temporaryFilePath];
+                 
+                 [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+                 NSError *error = nil;
+                 [imageData writeToURL:temporaryFileURL options:NSDataWritingAtomic error:&error];
+                 if ( error ) {
+                 NSLog( @"Error occured while writing image data to a temporary file: %@", error );
+                 }
+                 else {
+                 [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:temporaryFileURL];
+                 }
+                 } completionHandler:^( BOOL success, NSError *error ) {
+                 if ( ! success ) {
+                 NSLog( @"Error occurred while saving image to photo library: %@", error );
+                 }
+                 
+                 // Delete the temporary file.
+                 [[NSFileManager defaultManager] removeItemAtURL:temporaryFileURL error:nil];
+                 }];
+                 }
+                 }
+                 }];*/
+            }
+            else {
+                NSLog( @"Could not capture still image: %@", error );
+            }
+        }];
+    } );
+}
+
+/*
+ 
+ - (UIImage *) combine:(UIImage*)leftImage :(UIImage*)rightImage {
+ CGFloat width = leftImage.size.width * 2;
+ CGFloat height = leftImage.size.height;
+ CGSize offScreenSize = CGSizeMake(width, height);
+ 
+ UIGraphicsBeginImageContext(offScreenSize);
+ 
+ // 描述圆形的路径
+ // UIBezierPath *path = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(0, 0, image.size.width, image.size.height)];
+ 
+ // 把圆形路径设置裁剪区域（将区域外的内容裁剪掉，是现实区域内的内容）
+ [path addClip];
+ 
+ CGRect rect = CGRectMake(0, 0, width/2, height);
+ [leftImage drawInRect:rect];
+ 
+ rect.origin.x += width/2;
+ [rightImage drawInRect:rect];
+ 
+ UIImage* imagez = UIGraphicsGetImageFromCurrentImageContext();
+ 
+ UIGraphicsEndImageContext();
+ 
+ return imagez;
+ }*/
+
+#pragma mark - image processing
+
++ (UIImage *)compressImage:(UIImage *)sourceImage {
+    CGSize imageSize = sourceImage.size;
+    
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    
+    NSLog(@"compressImage %f，%f", width, height);
+    
+    CGFloat targetWidth = kScreenWidth;
+    CGFloat targetHeight = (targetWidth / width) * height;
+    
+    
+    
+    UIGraphicsBeginImageContext(CGSizeMake(targetWidth, targetHeight));
+    [sourceImage drawInRect:CGRectMake(0, 0, targetWidth, targetHeight)];
+    
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    NSLog(@"compressImage %f，%f", newImage.size.width, newImage.size.height);
+    
+    return newImage;
+}
+
+
 
 @end
+

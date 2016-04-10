@@ -25,8 +25,10 @@
     CameraViewController *cameraViewController = [[CameraViewController alloc] init];
     RootViewController *sideViewController = [[RootViewController alloc] initWithRootViewController:cameraViewController];
     cameraViewController.sideViewControllerDelegate = sideViewController;
-    
     self.window.rootViewController = sideViewController;
+    
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    
     [self.window makeKeyAndVisible];
     return YES;
 }

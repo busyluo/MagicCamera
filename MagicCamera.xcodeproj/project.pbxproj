@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		250FB0291CBA4BD2006A2A8B /* test2.JPG in Resources */ = {isa = PBXBuildFile; fileRef = 250FB0281CBA4BD2006A2A8B /* test2.JPG */; };
+		250FB02B1CBA4D4C006A2A8B /* test3.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 250FB02A1CBA4D4C006A2A8B /* test3.jpeg */; };
+		250FB02D1CBA4FF9006A2A8B /* test4.png in Resources */ = {isa = PBXBuildFile; fileRef = 250FB02C1CBA4FF9006A2A8B /* test4.png */; };
+		250FB0321CBA54F6006A2A8B /* UIImage+fixOrientation.m in Sources */ = {isa = PBXBuildFile; fileRef = 250FB0311CBA54F6006A2A8B /* UIImage+fixOrientation.m */; };
 		2595D0731CB4DD4400AA313E /* test.png in Resources */ = {isa = PBXBuildFile; fileRef = 2595D0721CB4DD4400AA313E /* test.png */; };
 		2595D0761CB4F65400AA313E /* PreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2595D0751CB4F65400AA313E /* PreviewView.m */; };
 		2595D0791CB5125A00AA313E /* PathModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2595D0781CB5125A00AA313E /* PathModel.m */; };
@@ -42,6 +46,11 @@
 
 /* Begin PBXFileReference section */
 		1B75266558336AE91D41238C /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		250FB0281CBA4BD2006A2A8B /* test2.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test2.JPG; sourceTree = "<group>"; };
+		250FB02A1CBA4D4C006A2A8B /* test3.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test3.jpeg; sourceTree = "<group>"; };
+		250FB02C1CBA4FF9006A2A8B /* test4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = test4.png; sourceTree = "<group>"; };
+		250FB0301CBA54F6006A2A8B /* UIImage+fixOrientation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+fixOrientation.h"; sourceTree = "<group>"; };
+		250FB0311CBA54F6006A2A8B /* UIImage+fixOrientation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+fixOrientation.m"; sourceTree = "<group>"; };
 		2595D0721CB4DD4400AA313E /* test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = test.png; path = ../../test.png; sourceTree = "<group>"; };
 		2595D0741CB4F65400AA313E /* PreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreviewView.h; sourceTree = "<group>"; };
 		2595D0751CB4F65400AA313E /* PreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreviewView.m; sourceTree = "<group>"; };
@@ -99,6 +108,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		250FB02E1CBA545E006A2A8B /* Additions */ = {
+			isa = PBXGroup;
+			children = (
+				250FB02F1CBA5469006A2A8B /* Category */,
+			);
+			name = Additions;
+			sourceTree = "<group>";
+		};
+		250FB02F1CBA5469006A2A8B /* Category */ = {
+			isa = PBXGroup;
+			children = (
+				250FB0301CBA54F6006A2A8B /* UIImage+fixOrientation.h */,
+				250FB0311CBA54F6006A2A8B /* UIImage+fixOrientation.m */,
+			);
+			name = Category;
+			sourceTree = "<group>";
+		};
 		25D792D21CB29AC300692974 = {
 			isa = PBXGroup;
 			children = (
@@ -124,6 +150,7 @@
 		25D792DD1CB29AC300692974 /* MagicCamera */ = {
 			isa = PBXGroup;
 			children = (
+				250FB02E1CBA545E006A2A8B /* Additions */,
 				25D792E11CB29AC300692974 /* AppDelegate.h */,
 				25D792E21CB29AC300692974 /* AppDelegate.m */,
 				25D792E41CB29AC300692974 /* RootViewController.h */,
@@ -142,6 +169,9 @@
 				25D7931E1CB2B59000692974 /* MagicCamera.xcdatamodeld */,
 				25D792ED1CB29AC300692974 /* Assets.xcassets */,
 				2595D0721CB4DD4400AA313E /* test.png */,
+				250FB0281CBA4BD2006A2A8B /* test2.JPG */,
+				250FB02A1CBA4D4C006A2A8B /* test3.jpeg */,
+				250FB02C1CBA4FF9006A2A8B /* test4.png */,
 				25D792F21CB29AC300692974 /* Info.plist */,
 				25D792DF1CB29AC300692974 /* main.m */,
 				25D793171CB2A07C00692974 /* PrefixHeader.pch */,
@@ -325,7 +355,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				25D792EE1CB29AC300692974 /* Assets.xcassets in Resources */,
+				250FB02B1CBA4D4C006A2A8B /* test3.jpeg in Resources */,
+				250FB02D1CBA4FF9006A2A8B /* test4.png in Resources */,
 				2595D0731CB4DD4400AA313E /* test.png in Resources */,
+				250FB0291CBA4BD2006A2A8B /* test2.JPG in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -398,6 +431,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				250FB0321CBA54F6006A2A8B /* UIImage+fixOrientation.m in Sources */,
 				25D7931A1CB2AB6400692974 /* CameraViewController.m in Sources */,
 				25D792E61CB29AC300692974 /* RootViewController.m in Sources */,
 				2595D0761CB4F65400AA313E /* PreviewView.m in Sources */,

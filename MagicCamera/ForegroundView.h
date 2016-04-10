@@ -10,7 +10,12 @@
 
 @interface ForegroundView : UIView {
     CGMutablePathRef drawingPath;
+    
     NSMutableArray *pathArray;
+    NSMutableArray *closePathArray;
 }
+
+@property (nonatomic) CGMutablePathRef firstPath;
+@property (nonatomic) CGMutablePathRef secondPath;
 
 @end
