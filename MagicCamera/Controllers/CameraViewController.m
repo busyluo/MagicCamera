@@ -12,6 +12,8 @@
 #import "PreviewView.h"
 #import "ForegroundView.h"
 #import "UIImage+fixOrientation.h"
+#import "VPInteractiveImageView.h"
+#import "VPInteractiveImageViewController.h"
 
 @import AVFoundation;
 @import Photos;
@@ -25,7 +27,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     AVCamSetupResultSessionConfigurationFailed
 };
 
-@interface CameraViewController (){
+@interface CameraViewController () <CameraHandleDelegate, InteractiveImageViewControllerDelegate>{
     CGColorSpaceRef imageColorRef;
     CGContextRef imageContextRef;
 }
@@ -33,7 +35,6 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 // Views
 @property (nonatomic) UIButton *menuButton;
 @property (nonatomic) UIButton *flashButton;
-//@property (nonatomic) UIButton *timerButton;
 @property (nonatomic) UIButton *focusIn;
 @property (nonatomic) UIButton *focusOut;
 @property (nonatomic) UIButton *switchButton;
@@ -57,18 +58,19 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 @property (nonatomic) AVCamSetupResult setupResult;
 @property (nonatomic, getter=isSessionRunning) BOOL sessionRunning;
 @property (nonatomic) UIBackgroundTaskIdentifier backgroundRecordingID;
-
+@property (nonatomic) BOOL firstPhoto;
+@property (nonatomic) UIImage *imageTemp;
 @end
 
 
 @implementation CameraViewController
 
-#pragma mark - life cycle
+#pragma mark - Life cycle
 
 - (instancetype)init {
     self = [super init];
     if (self) {
-        
+        _firstPhoto = YES;
     }
     return self;
 }
@@ -275,7 +277,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     } );
 }
 
-#pragma mark - private method
+#pragma mark - Private method
 
 - (void) configureButtons {
     
@@ -344,6 +346,7 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     self.foregroundView = [[ForegroundView alloc] initWithFrame:CGRectMake(0, photoViewOriginY, kScreenWidth, photoHeight)];
     self.foregroundView.backgroundColor = [UIColor clearColor];
     [self.view addSubview:self.foregroundView];
+    self.foregroundView.delegate = self;
     
     self.view.backgroundColor = [UIColor blackColor];
 }
@@ -491,58 +494,92 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 
 - (IBAction) undo:(id)sender {
     NSLog(@"undo");
+    
+    UIImage *image = [UIImage imageNamed:@"test2.JPG"];
+    image = [image fixOrientation];
+    
+    CGImageRef imageRef = [image CGImage];
+    UIImage* imageDst;
+    
+    CGFloat height = self.foregroundView.frame.size.height;
+    CGFloat scala = image.size.height / height;
+    
+    if (_firstPhoto) {
+        
+        if (self.foregroundView.firstPath) {
+            imageContextRef = CGBitmapContextCreate(NULL, image.size.width, image.size.height,
+                                                    CGImageGetBitsPerComponent(image.CGImage), 0,
+                                                    CGImageGetColorSpace(image.CGImage),
+                                                    kCGImageAlphaPremultipliedLast);
+            
+            CGContextSaveGState(imageContextRef);
+            
+            CGAffineTransform pathTransform = CGAffineTransformTranslate(CGAffineTransformScale(CGAffineTransformIdentity, scala, -scala), 0, -height);
+            CGMutablePathRef mutPath = CGPathCreateMutableCopyByTransformingPath(self.foregroundView.firstPath, &pathTransform);
+            CGContextAddPath(imageContextRef, mutPath);
+            CGContextClip(imageContextRef);
+            CGContextDrawImage(imageContextRef, CGRectMake(0, 0, image.size.width, image.size.height), imageRef);
+            
+            CGImageRef imageRef = CGBitmapContextCreateImage(imageContextRef);
+            imageDst = [UIImage imageWithCGImage:imageRef];
+            CGImageRelease(imageRef);
+            
+            CGContextRestoreGState(imageContextRef);
+            CGPathRelease(mutPath);
+            
+            _firstPhoto = NO;
+        } else {
+            imageDst = image;
+        }
+        
+    } else {
+        
+        CGContextSaveGState(imageContextRef);
+        
+        CGAffineTransform pathTransform = CGAffineTransformTranslate(CGAffineTransformScale(CGAffineTransformIdentity, scala, -scala), 0, -height);
+        CGMutablePathRef mutPath = CGPathCreateMutableCopyByTransformingPath(self.foregroundView.secondPath, &pathTransform);
+        CGContextAddPath(imageContextRef, mutPath);
+        CGContextClip(imageContextRef);
+        CGContextDrawImage(imageContextRef, CGRectMake(0, 0, image.size.width, image.size.height), image.CGImage);
+        CGContextRestoreGState(imageContextRef);
+        
+        CGImageRef imageRef = CGBitmapContextCreateImage(imageContextRef);
+        imageDst = [UIImage imageWithCGImage:imageRef];
+        CGImageRelease(imageRef);
+        
+        CGContextRelease(imageContextRef);
+        imageContextRef = nil;
+        CGPathRelease(mutPath);
+        
+        _firstPhoto = YES;
+    }
+    
+    dispatch_async( dispatch_get_main_queue(), ^{
+        self.photoView.image =  imageDst;
+        
+        if(_firstPhoto){
+            self.imageTemp = imageDst;
+            VPInteractiveImageView *interactiveImageView = [[VPInteractiveImageView alloc] initWithImage:imageDst];
+            interactiveImageView.photoDelegate = self;
+            [interactiveImageView presentFullscreen];
+        }
+        
+        self.startButton.enabled = YES;
+    } );
+    
 }
 
 - (IBAction) reset:(id)sender {
     NSLog(@"reset");
     
-    //NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
-    //UIImage *image = [UIImage imageWithData: imageData];
-    UIImage *image1 = [UIImage imageNamed:@"test"];
-    UIImage *image2 = [UIImage imageNamed:@"test"];
-    
-    //UIGraphicsBeginImageContext(image.size);
-    //viewRect = self.foregroundView.bounds;
-    
-    CGColorSpaceRef colorRef = CGColorSpaceCreateDeviceRGB();
-    CGContextRef contextRef = CGBitmapContextCreate(nil, image1.size.width, image1.size.height, 8, image1.size.width*4, colorRef, kCGImageAlphaPremultipliedFirst);
-    CGContextSaveGState(contextRef);
-    CGMutablePathRef mutPath = CGPathCreateMutable();
-    CGPathMoveToPoint(mutPath, NULL, 0, 0);
-    CGPathAddLineToPoint(mutPath, NULL, 0, image1.size.height);
-    CGPathAddLineToPoint(mutPath, NULL, image1.size.width / 2, image1.size.height);
-    CGPathAddLineToPoint(mutPath, NULL, image1.size.width / 2, 0);
-    CGPathCloseSubpath(mutPath);
-    CGContextAddPath(contextRef, mutPath);
-    CGContextClip(contextRef);
-    CGContextDrawImage(contextRef, CGRectMake(0, 0, image1.size.width, image1.size.height), image1.CGImage);
-    CGContextRestoreGState(contextRef);
-    
-    CGContextSaveGState(contextRef);
-    CGMutablePathRef mutPath2 = CGPathCreateMutable();
-    CGPathMoveToPoint(mutPath2, NULL, image1.size.width / 2, 0);
-    CGPathAddLineToPoint(mutPath2, NULL, image1.size.width / 2, image1.size.height);
-    CGPathAddLineToPoint(mutPath2, NULL, image1.size.width, image1.size.height);
-    CGPathAddLineToPoint(mutPath2, NULL, image1.size.width, 0);
-    CGPathCloseSubpath(mutPath2);
-    CGContextAddPath(contextRef, mutPath2);
-    CGContextClip(contextRef);
-    CGContextDrawImage(contextRef, CGRectMake(0, 0, image2.size.width, image2.size.height), image2.CGImage);
-    CGContextRestoreGState(contextRef);
-    
-    
-    CGImageRef imageRef = CGBitmapContextCreateImage(contextRef);
-    UIImage* imageDst = [UIImage imageWithCGImage:imageRef scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp];
-    CGContextRelease(contextRef);
-    CGColorSpaceRelease(colorRef);
-    
-    UIImage *compressedImage = [CameraViewController compressImage:imageDst];
-    self.photoView.image =  compressedImage;
+    _firstPhoto = YES;
+    self.photoView.image = nil;
+    [self.foregroundView reset];
 }
 
 
 
-- (IBAction) start:(id)sender {
+- (IBAction) start:(id)takePhoto {
     NSLog(@"start");
     self.startButton.enabled = NO;
     
@@ -564,7 +601,8 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
             if ( imageDataSampleBuffer ) {
                 // The sample buffer is not retained. Create image data before saving the still image to the photo library asynchronously.
                 NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
-                UIImage *image = [UIImage imageWithData:imageData];
+                //UIImage *image = [UIImage imageWithData:imageData];
+                UIImage *image = [UIImage imageNamed:@"test2.JPG"];
                 image = [image fixOrientation];
                 
                 CGImageRef imageRef = [image CGImage];
@@ -573,24 +611,39 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                 CGFloat height = self.foregroundView.frame.size.height;
                 CGFloat scala = image.size.height / height;
                 
-                if (!imageContextRef) {
-                    imageContextRef = CGBitmapContextCreate(NULL, image.size.width, image.size.height,
-                                                            CGImageGetBitsPerComponent(image.CGImage), 0,
-                                                            CGImageGetColorSpace(image.CGImage),
-                                                            kCGImageAlphaPremultipliedLast);
+                if (_firstPhoto) {
                     
-                    CGContextSaveGState(imageContextRef);
-                    CGAffineTransform pathTransform = CGAffineTransformTranslate(CGAffineTransformScale(CGAffineTransformIdentity, scala, -scala), 0, -height);
-                    CGMutablePathRef mutPath = CGPathCreateMutableCopyByTransformingPath(self.foregroundView.firstPath, &pathTransform);
-                    CGContextAddPath(imageContextRef, mutPath);
-                    CGContextClip(imageContextRef);
-                    CGContextDrawImage(imageContextRef, CGRectMake(0, 0, image.size.width, image.size.height), imageRef);
-                    CGImageRef imageRef = CGBitmapContextCreateImage(imageContextRef);
-                    imageDst = [UIImage imageWithCGImage:imageRef];
+                    if (self.foregroundView.firstPath) {
+                        imageContextRef = CGBitmapContextCreate(NULL, image.size.width, image.size.height,
+                                                                CGImageGetBitsPerComponent(image.CGImage), 0,
+                                                                CGImageGetColorSpace(image.CGImage),
+                                                                kCGImageAlphaPremultipliedLast);
+                        
+                        CGContextSaveGState(imageContextRef);
+                        
+                        CGAffineTransform pathTransform = CGAffineTransformTranslate(CGAffineTransformScale(CGAffineTransformIdentity, scala, -scala), 0, -height);
+                        CGMutablePathRef mutPath = CGPathCreateMutableCopyByTransformingPath(self.foregroundView.firstPath, &pathTransform);
+                        CGContextAddPath(imageContextRef, mutPath);
+                        CGContextClip(imageContextRef);
+                        CGContextDrawImage(imageContextRef, CGRectMake(0, 0, image.size.width, image.size.height), imageRef);
+                        
+                        CGImageRef imageRef = CGBitmapContextCreateImage(imageContextRef);
+                        imageDst = [UIImage imageWithCGImage:imageRef];
+                        CGImageRelease(imageRef);
+                        
+                        CGContextRestoreGState(imageContextRef);
+                        CGPathRelease(mutPath);
+                        
+                        _firstPhoto = NO;
+                    } else {
+                        imageDst = image;
+                    }
                     
-                    CGContextRestoreGState(imageContextRef);
+                    
                 } else {
+                    
                     CGContextSaveGState(imageContextRef);
+                    
                     CGAffineTransform pathTransform = CGAffineTransformTranslate(CGAffineTransformScale(CGAffineTransformIdentity, scala, -scala), 0, -height);
                     CGMutablePathRef mutPath = CGPathCreateMutableCopyByTransformingPath(self.foregroundView.secondPath, &pathTransform);
                     CGContextAddPath(imageContextRef, mutPath);
@@ -600,57 +653,27 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                     
                     CGImageRef imageRef = CGBitmapContextCreateImage(imageContextRef);
                     imageDst = [UIImage imageWithCGImage:imageRef];
+                    CGImageRelease(imageRef);
                     
                     CGContextRelease(imageContextRef);
+                    imageContextRef = nil;
+                    CGPathRelease(mutPath);
+                    
+                    _firstPhoto = YES;
                 }
                 
                 dispatch_async( dispatch_get_main_queue(), ^{
                     self.photoView.image =  imageDst;
+                    
+                    if(_firstPhoto){
+                        self.imageTemp = imageDst;
+                        VPInteractiveImageView *interactiveImageView = [[VPInteractiveImageView alloc] initWithImage:imageDst];
+                        interactiveImageView.photoDelegate = self;
+                        [interactiveImageView presentFullscreen];
+                    }
+                    
                     self.startButton.enabled = YES;
                 } );
-                
-                /*
-                 [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
-                 if ( status == PHAuthorizationStatusAuthorized ) {
-                 // To preserve the metadata, we create an asset from the JPEG NSData representation.
-                 // Note that creating an asset from a UIImage discards the metadata.
-                 // In iOS 9, we can use -[PHAssetCreationRequest addResourceWithType:data:options].
-                 // In iOS 8, we save the image to a temporary file and use +[PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:].
-                 if ( [PHAssetCreationRequest class] ) {
-                 [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-                 //[[PHAssetCreationRequest creationRequestForAsset] addResourceWithType:PHAssetResourceTypePhoto data:imageData options:nil];
-                 [PHAssetCreationRequest creationRequestForAssetFromImage:image];
-                 } completionHandler:^( BOOL success, NSError *error ) {
-                 if ( ! success ) {
-                 NSLog( @"Error occurred while saving image to photo library: %@", error );
-                 }
-                 }];
-                 }
-                 else {
-                 NSString *temporaryFileName = [NSProcessInfo processInfo].globallyUniqueString;
-                 NSString *temporaryFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[temporaryFileName stringByAppendingPathExtension:@"jpg"]];
-                 NSURL *temporaryFileURL = [NSURL fileURLWithPath:temporaryFilePath];
-                 
-                 [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-                 NSError *error = nil;
-                 [imageData writeToURL:temporaryFileURL options:NSDataWritingAtomic error:&error];
-                 if ( error ) {
-                 NSLog( @"Error occured while writing image data to a temporary file: %@", error );
-                 }
-                 else {
-                 [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:temporaryFileURL];
-                 }
-                 } completionHandler:^( BOOL success, NSError *error ) {
-                 if ( ! success ) {
-                 NSLog( @"Error occurred while saving image to photo library: %@", error );
-                 }
-                 
-                 // Delete the temporary file.
-                 [[NSFileManager defaultManager] removeItemAtURL:temporaryFileURL error:nil];
-                 }];
-                 }
-                 }
-                 }];*/
             }
             else {
                 NSLog( @"Could not capture still image: %@", error );
@@ -659,36 +682,23 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     } );
 }
 
-/*
- 
- - (UIImage *) combine:(UIImage*)leftImage :(UIImage*)rightImage {
- CGFloat width = leftImage.size.width * 2;
- CGFloat height = leftImage.size.height;
- CGSize offScreenSize = CGSizeMake(width, height);
- 
- UIGraphicsBeginImageContext(offScreenSize);
- 
- // 描述圆形的路径
- // UIBezierPath *path = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(0, 0, image.size.width, image.size.height)];
- 
- // 把圆形路径设置裁剪区域（将区域外的内容裁剪掉，是现实区域内的内容）
- [path addClip];
- 
- CGRect rect = CGRectMake(0, 0, width/2, height);
- [leftImage drawInRect:rect];
- 
- rect.origin.x += width/2;
- [rightImage drawInRect:rect];
- 
- UIImage* imagez = UIGraphicsGetImageFromCurrentImageContext();
- 
- UIGraphicsEndImageContext();
- 
- return imagez;
- }*/
+- (void)tapFirstPath {
+    
+}
 
-#pragma mark - image processing
+- (void)tapSecondPath {
+    
+}
 
+#pragma mark - ForegroundView delegate
+- (void)setFoucusAtPoint:(CGPoint)point {
+    
+    AVCaptureVideoPreviewLayer *previewLayer = (AVCaptureVideoPreviewLayer *)self.previewView.layer;
+    CGPoint pointInDevice = [previewLayer captureDevicePointOfInterestForPoint:point];
+    [self focusWithMode:AVCaptureFocusModeAutoFocus exposeWithMode:AVCaptureExposureModeAutoExpose atDevicePoint:pointInDevice monitorSubjectAreaChange:NO];
+}
+
+#pragma mark - Image processing
 + (UIImage *)compressImage:(UIImage *)sourceImage {
     CGSize imageSize = sourceImage.size;
     
@@ -699,8 +709,6 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     
     CGFloat targetWidth = kScreenWidth;
     CGFloat targetHeight = (targetWidth / width) * height;
-    
-    
     
     UIGraphicsBeginImageContext(CGSizeMake(targetWidth, targetHeight));
     [sourceImage drawInRect:CGRectMake(0, 0, targetWidth, targetHeight)];
@@ -713,7 +721,21 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     return newImage;
 }
 
+#pragma mark - InteractiveImageViewDelegate
+-(void)savePhoto {
+    
+    UIImage *image = self.imageTemp;
+    if(!image){
+        return;
+    }
+    UIImageWriteToSavedPhotosAlbum(image, self, nil, nil);
+    
+    [self reset:nil];
+}
 
+-(void)discardPhoto {
+    [self reset:nil];
+}
 
 @end
 

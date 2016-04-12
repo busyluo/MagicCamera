@@ -13,6 +13,9 @@
     CGPoint beginPoint;
     CGPoint endPoint;
 }
+
+@property (nonatomic) BOOL rewritePath;
+
 @end
 
 @implementation ForegroundView
@@ -43,14 +46,25 @@
      }*/
     CGContextRef context = UIGraphicsGetCurrentContext();
     if(firstPath != nil) {
+        
         CGContextAddPath(context, firstPath);
+        [[UIColor redColor] setStroke];
+        CGContextSetLineWidth(context, 3);
+        CGContextDrawPath(context, kCGPathStroke);
+        
         CGContextAddPath(context, secondPath);
+        [[UIColor greenColor] setStroke];
+        CGContextSetLineWidth(context, 2);
+        CGContextDrawPath(context, kCGPathStroke);
     } else if (drawingPath != nil) {
+        
         CGContextAddPath(context, drawingPath);
+        
+        [[UIColor blueColor] setStroke];
+        CGContextSetLineWidth(context, 3);
+        CGContextDrawPath(context, kCGPathStroke);
     }
-    [[UIColor redColor] setStroke];
-    CGContextSetLineWidth(context, 3);
-    CGContextDrawPath(context, kCGPathStroke);
+    
 }
 
 #pragma mark - touches
@@ -63,16 +77,25 @@
     drawingPath = CGPathCreateMutable();
     CGPathMoveToPoint(drawingPath, NULL, p.x, p.y);
     
-    //[pathArray removeAllObjects];
+    _rewritePath = NO;
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    //删除之前的路径
     CGPathRelease(firstPath);
     firstPath = nil;
     CGPathRelease(secondPath);
     secondPath = nil;
-}
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    _rewritePath = YES;
+    
     UITouch *touch = [touches anyObject];
     CGPoint p = [touch locationInView:self];
+    
+    if (p.y > self.frame.size.height) {
+        p.y  = self.frame.size.height;
+    }else if (p.x < 0){
+        p.y = 0;
+    }
     
     //点加至线上
     CGPathAddLineToPoint(drawingPath, NULL, p.x, p.y);
@@ -83,16 +106,30 @@
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    NSLog(@"touchesEnded");
     
     endPoint = [[touches anyObject] locationInView:self];
-    
-    //PathModel *model = [[PathModel alloc] init];
-    //model.path = drawingPath;
-    //[pathArray addObject:model];
+    if (endPoint.y > self.frame.size.height) {
+        endPoint.y  = self.frame.size.height;
+    }else if (endPoint.x < 0){
+        endPoint.y = 0;
+    }
     
     //生成两个封闭的Path
-    [self generateClosePath];
+    if(_rewritePath) {
+        [self generateClosePath];
+    }else if(firstPath){
+        bool inPath = CGPathContainsPoint(firstPath, NULL, endPoint, YES);
+        if (inPath) {
+            NSLog(@"In first path");
+            [self.delegate tapFirstPath];
+        }else{
+            NSLog(@"In second path");
+            [self.delegate tapSecondPath];
+        }
+    } else {
+        NSLog(@"focus in %.1f,%.1f", endPoint.x, endPoint.y);
+        [self.delegate setFoucusAtPoint:endPoint];
+    }
     
     [self setNeedsDisplay];
     CGPathRelease(drawingPath);
@@ -230,6 +267,16 @@ typedef struct ClosestPoint {
     }
     CGPathAddLineToPoint(secondPath, NULL, beginPointClosestPoint.point.x, beginPointClosestPoint.point.y);
     CGPathCloseSubpath(secondPath);
+}
+
+- (void) reset {
+    //删除之前的路径
+    CGPathRelease(firstPath);
+    firstPath = nil;
+    CGPathRelease(secondPath);
+    secondPath = nil;
+    _rewritePath = YES;
+    [self setNeedsDisplay];
 }
 
 @end

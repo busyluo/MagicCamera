@@ -8,6 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol CameraHandleDelegate <NSObject>
+
+- (void) setFoucusAtPoint:(CGPoint)point;
+- (void) tapFirstPath;
+- (void) tapSecondPath;
+
+@end
+
 @interface ForegroundView : UIView {
     CGMutablePathRef drawingPath;
     
@@ -17,5 +25,8 @@
 
 @property (nonatomic) CGMutablePathRef firstPath;
 @property (nonatomic) CGMutablePathRef secondPath;
+@property (nonatomic, weak) id<CameraHandleDelegate> delegate;
+
+- (void) reset;
 
 @end

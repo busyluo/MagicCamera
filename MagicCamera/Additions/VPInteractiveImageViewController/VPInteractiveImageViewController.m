@@ -1,0 +1,190 @@
+//
+//  VPInteractiveImageViewController.m
+//  VPInteractiveImageViewController
+//
+//  Created by Vidu Pirathaparajah on 27/01/14.
+//  Copyright (c) 2014 Vidu Pirathaparajah. All rights reserved.
+//
+
+#import "VPInteractiveImageViewController.h"
+#import "VPInteractiveImageView.h"
+
+@interface VPInteractiveImageViewController () <UIScrollViewDelegate>
+@property (nonatomic, weak, readonly) VPInteractiveImageView *interactiveImageView;
+@property (nonatomic) UIImageView *imageView;
+@property (nonatomic) UIScrollView *scrollView;
+@property (nonatomic) UITapGestureRecognizer *tapRecognizer;
+@property (nonatomic) CGFloat maximumZoomScale;
+
+@property (nonatomic) UIButton *saveButton;
+@property (nonatomic) UIButton *discardButton;
+@end
+
+@implementation VPInteractiveImageViewController
+
+#pragma mark - Initializers
+
+- (instancetype)initWithInteractiveImageView:(VPInteractiveImageView *)interactiveImageView {
+    self = [super initWithNibName:nil bundle:nil];
+    if (self) {
+        _imageView = [[UIImageView alloc] initWithFrame:CGRectZero];
+        _imageView.contentMode = UIViewContentModeScaleAspectFit;
+        self.maximumZoomScale = 3.0;
+        _interactiveImageView = interactiveImageView;
+    }
+    return self;
+}
+
+- (instancetype)initWithNibName:(nullable NSString *)nibNameOrNil
+                         bundle:(nullable NSBundle *)nibBundleOrNil {
+    self = [self initWithInteractiveImageView:nil];
+    @throw [NSException exceptionWithName:@"wrong init" reason:nil userInfo:nil];
+}
+
+- (instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
+    self = [self initWithInteractiveImageView:nil];
+    @throw [NSException exceptionWithName:@"wrong init" reason:nil userInfo:nil];
+}
+
+- (void)dealloc {
+    self.scrollView.delegate = nil;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    UITapGestureRecognizer *doubleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewDoubleTapped:)];
+    doubleTapRecognizer.numberOfTapsRequired = 2;
+    [self.view addGestureRecognizer:doubleTapRecognizer];
+    _tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewTapped:)];
+    [_tapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
+    [self.view addGestureRecognizer:_tapRecognizer];
+    
+    [self setupScrollView];
+    self.view.backgroundColor = [UIColor blackColor];
+    [self.scrollView addSubview:self.imageView];
+    
+    [self adjustImageViewFrame];
+    _imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
+    _saveButton = [UIButton buttonWithType:(UIButtonTypeCustom)];
+    [_saveButton setTitle:@"V" forState:UIControlStateNormal];
+    [_saveButton setImage:[UIImage imageNamed:@"savephoto"] forState:UIControlStateNormal];
+    [_saveButton addTarget:self action:@selector(saveButtonClicked) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:_saveButton];
+    
+    _discardButton = [UIButton buttonWithType:(UIButtonTypeCustom)];
+    [_discardButton setTitle:@"X" forState:UIControlStateNormal];
+    [_discardButton setImage:[UIImage imageNamed:@"discardphoto"] forState:UIControlStateNormal];
+    [_discardButton addTarget:self action:@selector(discardButtonClicked) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:_discardButton];
+}
+
+
+-(void)saveButtonClicked{
+    if ([self.interactiveImageView.delegate respondsToSelector:@selector(interactiveImageViewWillDismiss:)]) {
+        [self.interactiveImageView.delegate performSelector:@selector(interactiveImageViewWillDismiss:)
+                                                 withObject:self.interactiveImageView];
+    }
+    [self.presentingViewController dismissViewControllerAnimated:YES completion:NULL];
+    
+    [self.delegate savePhoto];
+}
+
+-(void)discardButtonClicked{
+    if ([self.interactiveImageView.delegate respondsToSelector:@selector(interactiveImageViewWillDismiss:)]) {
+        [self.interactiveImageView.delegate performSelector:@selector(interactiveImageViewWillDismiss:)
+                                                 withObject:self.interactiveImageView];
+    }
+    [self.presentingViewController dismissViewControllerAnimated:YES completion:NULL];
+    
+    [self.delegate discardPhoto];
+}
+
+- (void)setupScrollView {
+    self.scrollView = [[UIScrollView alloc] initWithFrame:self.view.bounds];
+    self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.scrollView.delegate = self;
+    self.scrollView.maximumZoomScale = self.maximumZoomScale;
+    [self.view addSubview:self.scrollView];
+}
+
+- (void)viewTapped:(UITapGestureRecognizer *)gestureRecognizer {
+    if ([self.interactiveImageView.delegate respondsToSelector:@selector(interactiveImageViewWillDismiss:)]) {
+        [self.interactiveImageView.delegate performSelector:@selector(interactiveImageViewWillDismiss:)
+                                                 withObject:self.interactiveImageView];
+    }
+    [self.presentingViewController dismissViewControllerAnimated:YES completion:NULL];
+}
+
+- (void)viewDoubleTapped:(UITapGestureRecognizer *)gestureRecognizer {
+    if (self.scrollView.zoomScale < self.scrollView.maximumZoomScale) {
+        [self zoomInWithPoint:[gestureRecognizer locationInView:self.imageView]];
+    } else {
+        [self zoomOut];
+    }
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    
+    self.scrollView.minimumZoomScale = [self minimumZoomScale];
+    if (self.scrollView.zoomScale <= [self minimumZoomScale]) {
+        [self zoomOut]; // reset zoomScale and contentsize to original state
+    }
+    
+    _saveButton.frame = CGRectMake(kScreenWidth / 2 - 70, kScreenHeight - 60, 40, 40);
+    _discardButton.frame = CGRectMake(kScreenWidth / 2 + 30, kScreenHeight - 60, 40, 40);
+}
+
+- (void)zoomInWithPoint:(CGPoint)point {
+    CGFloat newScale = self.maximumZoomScale;
+    CGRect zoomRect = [self zoomRectForScale:newScale withCenter:point];
+    [self.scrollView zoomToRect:zoomRect animated:YES];
+}
+
+- (void)zoomOut {
+    self.scrollView.minimumZoomScale = [self minimumZoomScale];
+    [self.scrollView setZoomScale:self.scrollView.minimumZoomScale animated:YES];
+    self.scrollView.contentSize = self.scrollView.bounds.size;
+    [self adjustImageViewFrame];
+}
+
+- (void)adjustImageViewFrame {
+    self.imageView.frame = CGRectMake(0, 0,
+                                      self.scrollView.bounds.size.width,
+                                      self.scrollView.bounds.size.height);
+}
+
+- (CGRect)zoomRectForScale:(CGFloat)scale withCenter:(CGPoint)center {
+    CGRect zoomRect = CGRectZero;
+    zoomRect.size.height = floor(self.view.bounds.size.height / scale);
+    zoomRect.size.width  = floor(self.view.bounds.size.width / scale);
+    zoomRect.origin.x    = center.x - floor(zoomRect.size.width / 2.0);
+    zoomRect.origin.y    = center.y - floor(zoomRect.size.height / 2.0);
+    
+    return zoomRect;
+}
+
+- (CGFloat)minimumZoomScale {
+    CGFloat scale = self.scrollView.bounds.size.width / self.imageView.bounds.size.width;
+    return scale;
+}
+
+#pragma mark - UIScrollViewDelegate
+
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
+    return self.imageView;
+}
+
+- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view {
+    self.tapRecognizer.enabled = NO;
+}
+
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
+    if (scale <= [self minimumZoomScale]) {
+        self.tapRecognizer.enabled = YES;
+    }
+}
+
+@end

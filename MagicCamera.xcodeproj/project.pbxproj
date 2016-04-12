@@ -11,6 +11,12 @@
 		250FB02B1CBA4D4C006A2A8B /* test3.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 250FB02A1CBA4D4C006A2A8B /* test3.jpeg */; };
 		250FB02D1CBA4FF9006A2A8B /* test4.png in Resources */ = {isa = PBXBuildFile; fileRef = 250FB02C1CBA4FF9006A2A8B /* test4.png */; };
 		250FB0321CBA54F6006A2A8B /* UIImage+fixOrientation.m in Sources */ = {isa = PBXBuildFile; fileRef = 250FB0311CBA54F6006A2A8B /* UIImage+fixOrientation.m */; };
+		250FB0411CBBD87B006A2A8B /* VPInteractiveImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 250FB0361CBBD87B006A2A8B /* VPInteractiveImageView.m */; };
+		250FB0431CBBD87B006A2A8B /* VPInteractiveImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 250FB03A1CBBD87B006A2A8B /* VPInteractiveImageViewController.m */; };
+		250FB0441CBBD87B006A2A8B /* VPTransitionAnimator.m in Sources */ = {isa = PBXBuildFile; fileRef = 250FB03C1CBBD87B006A2A8B /* VPTransitionAnimator.m */; };
+		250FB0451CBBD87B006A2A8B /* VPTransitionDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 250FB03E1CBBD87B006A2A8B /* VPTransitionDelegate.m */; };
+		250FB0461CBBD87B006A2A8B /* VPTransitionInteractor.m in Sources */ = {isa = PBXBuildFile; fileRef = 250FB0401CBBD87B006A2A8B /* VPTransitionInteractor.m */; };
+		250FB0491CBBD886006A2A8B /* LGSideMenuController.m in Sources */ = {isa = PBXBuildFile; fileRef = 250FB0481CBBD886006A2A8B /* LGSideMenuController.m */; };
 		2595D0731CB4DD4400AA313E /* test.png in Resources */ = {isa = PBXBuildFile; fileRef = 2595D0721CB4DD4400AA313E /* test.png */; };
 		2595D0761CB4F65400AA313E /* PreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2595D0751CB4F65400AA313E /* PreviewView.m */; };
 		2595D0791CB5125A00AA313E /* PathModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2595D0781CB5125A00AA313E /* PathModel.m */; };
@@ -51,6 +57,18 @@
 		250FB02C1CBA4FF9006A2A8B /* test4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = test4.png; sourceTree = "<group>"; };
 		250FB0301CBA54F6006A2A8B /* UIImage+fixOrientation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+fixOrientation.h"; sourceTree = "<group>"; };
 		250FB0311CBA54F6006A2A8B /* UIImage+fixOrientation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+fixOrientation.m"; sourceTree = "<group>"; };
+		250FB0351CBBD87B006A2A8B /* VPInteractiveImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VPInteractiveImageView.h; sourceTree = "<group>"; };
+		250FB0361CBBD87B006A2A8B /* VPInteractiveImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VPInteractiveImageView.m; sourceTree = "<group>"; };
+		250FB0391CBBD87B006A2A8B /* VPInteractiveImageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VPInteractiveImageViewController.h; sourceTree = "<group>"; };
+		250FB03A1CBBD87B006A2A8B /* VPInteractiveImageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VPInteractiveImageViewController.m; sourceTree = "<group>"; };
+		250FB03B1CBBD87B006A2A8B /* VPTransitionAnimator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VPTransitionAnimator.h; sourceTree = "<group>"; };
+		250FB03C1CBBD87B006A2A8B /* VPTransitionAnimator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VPTransitionAnimator.m; sourceTree = "<group>"; };
+		250FB03D1CBBD87B006A2A8B /* VPTransitionDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VPTransitionDelegate.h; sourceTree = "<group>"; };
+		250FB03E1CBBD87B006A2A8B /* VPTransitionDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VPTransitionDelegate.m; sourceTree = "<group>"; };
+		250FB03F1CBBD87B006A2A8B /* VPTransitionInteractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VPTransitionInteractor.h; sourceTree = "<group>"; };
+		250FB0401CBBD87B006A2A8B /* VPTransitionInteractor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VPTransitionInteractor.m; sourceTree = "<group>"; };
+		250FB0471CBBD886006A2A8B /* LGSideMenuController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LGSideMenuController.h; sourceTree = "<group>"; };
+		250FB0481CBBD886006A2A8B /* LGSideMenuController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LGSideMenuController.m; sourceTree = "<group>"; };
 		2595D0721CB4DD4400AA313E /* test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = test.png; path = ../../test.png; sourceTree = "<group>"; };
 		2595D0741CB4F65400AA313E /* PreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreviewView.h; sourceTree = "<group>"; };
 		2595D0751CB4F65400AA313E /* PreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreviewView.m; sourceTree = "<group>"; };
@@ -111,9 +129,11 @@
 		250FB02E1CBA545E006A2A8B /* Additions */ = {
 			isa = PBXGroup;
 			children = (
+				250FB0341CBBD845006A2A8B /* VPInteractiveImageViewController */,
+				250FB0331CBBD833006A2A8B /* LGSideMenuController */,
 				250FB02F1CBA5469006A2A8B /* Category */,
 			);
-			name = Additions;
+			path = Additions;
 			sourceTree = "<group>";
 		};
 		250FB02F1CBA5469006A2A8B /* Category */ = {
@@ -122,7 +142,33 @@
 				250FB0301CBA54F6006A2A8B /* UIImage+fixOrientation.h */,
 				250FB0311CBA54F6006A2A8B /* UIImage+fixOrientation.m */,
 			);
-			name = Category;
+			path = Category;
+			sourceTree = "<group>";
+		};
+		250FB0331CBBD833006A2A8B /* LGSideMenuController */ = {
+			isa = PBXGroup;
+			children = (
+				250FB0471CBBD886006A2A8B /* LGSideMenuController.h */,
+				250FB0481CBBD886006A2A8B /* LGSideMenuController.m */,
+			);
+			path = LGSideMenuController;
+			sourceTree = "<group>";
+		};
+		250FB0341CBBD845006A2A8B /* VPInteractiveImageViewController */ = {
+			isa = PBXGroup;
+			children = (
+				250FB0351CBBD87B006A2A8B /* VPInteractiveImageView.h */,
+				250FB0361CBBD87B006A2A8B /* VPInteractiveImageView.m */,
+				250FB0391CBBD87B006A2A8B /* VPInteractiveImageViewController.h */,
+				250FB03A1CBBD87B006A2A8B /* VPInteractiveImageViewController.m */,
+				250FB03B1CBBD87B006A2A8B /* VPTransitionAnimator.h */,
+				250FB03C1CBBD87B006A2A8B /* VPTransitionAnimator.m */,
+				250FB03D1CBBD87B006A2A8B /* VPTransitionDelegate.h */,
+				250FB03E1CBBD87B006A2A8B /* VPTransitionDelegate.m */,
+				250FB03F1CBBD87B006A2A8B /* VPTransitionInteractor.h */,
+				250FB0401CBBD87B006A2A8B /* VPTransitionInteractor.m */,
+			);
+			path = VPInteractiveImageViewController;
 			sourceTree = "<group>";
 		};
 		25D792D21CB29AC300692974 = {
@@ -150,11 +196,11 @@
 		25D792DD1CB29AC300692974 /* MagicCamera */ = {
 			isa = PBXGroup;
 			children = (
-				250FB02E1CBA545E006A2A8B /* Additions */,
 				25D792E11CB29AC300692974 /* AppDelegate.h */,
 				25D792E21CB29AC300692974 /* AppDelegate.m */,
 				25D792E41CB29AC300692974 /* RootViewController.h */,
 				25D792E51CB29AC300692974 /* RootViewController.m */,
+				250FB02E1CBA545E006A2A8B /* Additions */,
 				25D793141CB29B5400692974 /* Models */,
 				25D793151CB29B5D00692974 /* Views */,
 				25D793161CB29B7000692974 /* Controllers */,
@@ -203,7 +249,7 @@
 				2595D0771CB5125A00AA313E /* PathModel.h */,
 				2595D0781CB5125A00AA313E /* PathModel.m */,
 			);
-			name = Models;
+			path = Models;
 			sourceTree = "<group>";
 		};
 		25D793151CB29B5D00692974 /* Views */ = {
@@ -214,7 +260,7 @@
 				2595D07A1CB5249000AA313E /* ForegroundView.h */,
 				2595D07B1CB5249000AA313E /* ForegroundView.m */,
 			);
-			name = Views;
+			path = Views;
 			sourceTree = "<group>";
 		};
 		25D793161CB29B7000692974 /* Controllers */ = {
@@ -225,7 +271,7 @@
 				25D7931B1CB2AEDA00692974 /* LeftViewController.h */,
 				25D7931C1CB2AEDA00692974 /* LeftViewController.m */,
 			);
-			name = Controllers;
+			path = Controllers;
 			sourceTree = "<group>";
 		};
 		431246E43C8B6981F4BC23A5 /* Frameworks */ = {
@@ -433,14 +479,20 @@
 			files = (
 				250FB0321CBA54F6006A2A8B /* UIImage+fixOrientation.m in Sources */,
 				25D7931A1CB2AB6400692974 /* CameraViewController.m in Sources */,
+				250FB0491CBBD886006A2A8B /* LGSideMenuController.m in Sources */,
 				25D792E61CB29AC300692974 /* RootViewController.m in Sources */,
 				2595D0761CB4F65400AA313E /* PreviewView.m in Sources */,
 				25D793201CB2B59000692974 /* MagicCamera.xcdatamodeld in Sources */,
 				2595D07C1CB5249000AA313E /* ForegroundView.m in Sources */,
 				2595D0791CB5125A00AA313E /* PathModel.m in Sources */,
+				250FB0461CBBD87B006A2A8B /* VPTransitionInteractor.m in Sources */,
+				250FB0441CBBD87B006A2A8B /* VPTransitionAnimator.m in Sources */,
 				25D792E31CB29AC300692974 /* AppDelegate.m in Sources */,
+				250FB0451CBBD87B006A2A8B /* VPTransitionDelegate.m in Sources */,
+				250FB0411CBBD87B006A2A8B /* VPInteractiveImageView.m in Sources */,
 				25D792E01CB29AC300692974 /* main.m in Sources */,
 				25D7931D1CB2AEDA00692974 /* LeftViewController.m in Sources */,
+				250FB0431CBBD87B006A2A8B /* VPInteractiveImageViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
