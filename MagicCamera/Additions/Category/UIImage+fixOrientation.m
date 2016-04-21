@@ -91,4 +91,26 @@
     return img;
 }
 
+
+- (UIImage *)fixOrientationFromOrientation:(UIImageOrientation)fromOrientation {
+    
+    if (fromOrientation == UIImageOrientationUp) return self;
+
+    CGContextRef ctx = CGBitmapContextCreate(NULL, self.size.width, self.size.height,
+                                             CGImageGetBitsPerComponent(self.CGImage), 0,
+                                             CGImageGetColorSpace(self.CGImage),
+                                             CGImageGetBitmapInfo(self.CGImage));
+
+    CGContextDrawImage(ctx, CGRectMake(0,0,self.size.width,self.size.height), self.CGImage);
+
+    CGImageRef cgimg = CGBitmapContextCreateImage(ctx);
+    UIImage *img = [UIImage imageWithCGImage:cgimg scale:1 orientation:fromOrientation];
+    CGContextRelease(ctx);
+    CGImageRelease(cgimg);
+    
+    return img;
+}
+
+
+
 @end

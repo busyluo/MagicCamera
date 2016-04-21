@@ -9,6 +9,19 @@
 #import "ForegroundView.h"
 #import "PathModel.h"
 
+typedef NS_ENUM( NSInteger, ClosetPointSide ) {
+    ClosetPointTop,
+    ClosetPointRigth,
+    ClosetPointBottom,
+    ClosetPointLeft,
+};
+
+typedef struct ClosestPoint {
+    ClosetPointSide side;
+    CGPoint point;
+}ClosestPoint;
+
+
 @interface ForegroundView () {
     CGPoint beginPoint;
     CGPoint endPoint;
@@ -139,18 +152,6 @@
 -(void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
     [self touchesEnded:touches withEvent:event];
 }
-
-typedef NS_ENUM( NSInteger, ClosetPointSide ) {
-    ClosetPointTop,
-    ClosetPointRigth,
-    ClosetPointBottom,
-    ClosetPointLeft,
-};
-
-typedef struct ClosestPoint {
-    ClosetPointSide side;
-    CGPoint point;
-}ClosestPoint;
 
 - (ClosestPoint) getClosestPointOnMargin:(CGPoint) point {
     CGRect frame = self.frame;

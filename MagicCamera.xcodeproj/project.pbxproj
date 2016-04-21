@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		250FB0291CBA4BD2006A2A8B /* test2.JPG in Resources */ = {isa = PBXBuildFile; fileRef = 250FB0281CBA4BD2006A2A8B /* test2.JPG */; };
-		250FB02B1CBA4D4C006A2A8B /* test3.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 250FB02A1CBA4D4C006A2A8B /* test3.jpeg */; };
-		250FB02D1CBA4FF9006A2A8B /* test4.png in Resources */ = {isa = PBXBuildFile; fileRef = 250FB02C1CBA4FF9006A2A8B /* test4.png */; };
 		250FB0321CBA54F6006A2A8B /* UIImage+fixOrientation.m in Sources */ = {isa = PBXBuildFile; fileRef = 250FB0311CBA54F6006A2A8B /* UIImage+fixOrientation.m */; };
 		250FB0411CBBD87B006A2A8B /* VPInteractiveImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 250FB0361CBBD87B006A2A8B /* VPInteractiveImageView.m */; };
 		250FB0431CBBD87B006A2A8B /* VPInteractiveImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 250FB03A1CBBD87B006A2A8B /* VPInteractiveImageViewController.m */; };
@@ -17,7 +14,8 @@
 		250FB0451CBBD87B006A2A8B /* VPTransitionDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 250FB03E1CBBD87B006A2A8B /* VPTransitionDelegate.m */; };
 		250FB0461CBBD87B006A2A8B /* VPTransitionInteractor.m in Sources */ = {isa = PBXBuildFile; fileRef = 250FB0401CBBD87B006A2A8B /* VPTransitionInteractor.m */; };
 		250FB0491CBBD886006A2A8B /* LGSideMenuController.m in Sources */ = {isa = PBXBuildFile; fileRef = 250FB0481CBBD886006A2A8B /* LGSideMenuController.m */; };
-		2595D0731CB4DD4400AA313E /* test.png in Resources */ = {isa = PBXBuildFile; fileRef = 2595D0721CB4DD4400AA313E /* test.png */; };
+		255B4D7C1CBCFF0800915C27 /* LeftViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 255B4D7B1CBCFF0800915C27 /* LeftViewCell.m */; };
+		255B4D831CBE8AF300915C27 /* leftviewbackground.png in Resources */ = {isa = PBXBuildFile; fileRef = 255B4D821CBE8AF300915C27 /* leftviewbackground.png */; };
 		2595D0761CB4F65400AA313E /* PreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2595D0751CB4F65400AA313E /* PreviewView.m */; };
 		2595D0791CB5125A00AA313E /* PathModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2595D0781CB5125A00AA313E /* PathModel.m */; };
 		2595D07C1CB5249000AA313E /* ForegroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2595D07B1CB5249000AA313E /* ForegroundView.m */; };
@@ -52,9 +50,6 @@
 
 /* Begin PBXFileReference section */
 		1B75266558336AE91D41238C /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		250FB0281CBA4BD2006A2A8B /* test2.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test2.JPG; sourceTree = "<group>"; };
-		250FB02A1CBA4D4C006A2A8B /* test3.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test3.jpeg; sourceTree = "<group>"; };
-		250FB02C1CBA4FF9006A2A8B /* test4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = test4.png; sourceTree = "<group>"; };
 		250FB0301CBA54F6006A2A8B /* UIImage+fixOrientation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+fixOrientation.h"; sourceTree = "<group>"; };
 		250FB0311CBA54F6006A2A8B /* UIImage+fixOrientation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+fixOrientation.m"; sourceTree = "<group>"; };
 		250FB0351CBBD87B006A2A8B /* VPInteractiveImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VPInteractiveImageView.h; sourceTree = "<group>"; };
@@ -69,14 +64,16 @@
 		250FB0401CBBD87B006A2A8B /* VPTransitionInteractor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VPTransitionInteractor.m; sourceTree = "<group>"; };
 		250FB0471CBBD886006A2A8B /* LGSideMenuController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LGSideMenuController.h; sourceTree = "<group>"; };
 		250FB0481CBBD886006A2A8B /* LGSideMenuController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LGSideMenuController.m; sourceTree = "<group>"; };
-		2595D0721CB4DD4400AA313E /* test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = test.png; path = ../../test.png; sourceTree = "<group>"; };
+		255B4D7A1CBCFF0800915C27 /* LeftViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LeftViewCell.h; sourceTree = "<group>"; };
+		255B4D7B1CBCFF0800915C27 /* LeftViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LeftViewCell.m; sourceTree = "<group>"; };
+		255B4D821CBE8AF300915C27 /* leftviewbackground.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = leftviewbackground.png; path = Resource/leftviewbackground.png; sourceTree = "<group>"; };
 		2595D0741CB4F65400AA313E /* PreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreviewView.h; sourceTree = "<group>"; };
 		2595D0751CB4F65400AA313E /* PreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreviewView.m; sourceTree = "<group>"; };
 		2595D0771CB5125A00AA313E /* PathModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathModel.h; sourceTree = "<group>"; };
 		2595D0781CB5125A00AA313E /* PathModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PathModel.m; sourceTree = "<group>"; };
 		2595D07A1CB5249000AA313E /* ForegroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ForegroundView.h; sourceTree = "<group>"; };
 		2595D07B1CB5249000AA313E /* ForegroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ForegroundView.m; sourceTree = "<group>"; };
-		25D792DB1CB29AC300692974 /* MagicCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MagicCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		25D792DB1CB29AC300692974 /* 分身相机.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "分身相机.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		25D792DF1CB29AC300692974 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		25D792E11CB29AC300692974 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		25D792E21CB29AC300692974 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -171,6 +168,14 @@
 			path = VPInteractiveImageViewController;
 			sourceTree = "<group>";
 		};
+		255B4D811CBE8AA100915C27 /* Resource */ = {
+			isa = PBXGroup;
+			children = (
+				255B4D821CBE8AF300915C27 /* leftviewbackground.png */,
+			);
+			name = Resource;
+			sourceTree = "<group>";
+		};
 		25D792D21CB29AC300692974 = {
 			isa = PBXGroup;
 			children = (
@@ -186,7 +191,7 @@
 		25D792DC1CB29AC300692974 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				25D792DB1CB29AC300692974 /* MagicCamera.app */,
+				25D792DB1CB29AC300692974 /* 分身相机.app */,
 				25D792F71CB29AC300692974 /* MagicCameraTests.xctest */,
 				25D793021CB29AC400692974 /* MagicCameraUITests.xctest */,
 			);
@@ -204,6 +209,7 @@
 				25D793141CB29B5400692974 /* Models */,
 				25D793151CB29B5D00692974 /* Views */,
 				25D793161CB29B7000692974 /* Controllers */,
+				255B4D811CBE8AA100915C27 /* Resource */,
 				25D792DE1CB29AC300692974 /* Supporting Files */,
 			);
 			path = MagicCamera;
@@ -214,10 +220,6 @@
 			children = (
 				25D7931E1CB2B59000692974 /* MagicCamera.xcdatamodeld */,
 				25D792ED1CB29AC300692974 /* Assets.xcassets */,
-				2595D0721CB4DD4400AA313E /* test.png */,
-				250FB0281CBA4BD2006A2A8B /* test2.JPG */,
-				250FB02A1CBA4D4C006A2A8B /* test3.jpeg */,
-				250FB02C1CBA4FF9006A2A8B /* test4.png */,
 				25D792F21CB29AC300692974 /* Info.plist */,
 				25D792DF1CB29AC300692974 /* main.m */,
 				25D793171CB2A07C00692974 /* PrefixHeader.pch */,
@@ -259,6 +261,8 @@
 				2595D0751CB4F65400AA313E /* PreviewView.m */,
 				2595D07A1CB5249000AA313E /* ForegroundView.h */,
 				2595D07B1CB5249000AA313E /* ForegroundView.m */,
+				255B4D7A1CBCFF0800915C27 /* LeftViewCell.h */,
+				255B4D7B1CBCFF0800915C27 /* LeftViewCell.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -311,7 +315,7 @@
 			);
 			name = MagicCamera;
 			productName = MagicCamera;
-			productReference = 25D792DB1CB29AC300692974 /* MagicCamera.app */;
+			productReference = 25D792DB1CB29AC300692974 /* 分身相机.app */;
 			productType = "com.apple.product-type.application";
 		};
 		25D792F61CB29AC300692974 /* MagicCameraTests */ = {
@@ -401,10 +405,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				25D792EE1CB29AC300692974 /* Assets.xcassets in Resources */,
-				250FB02B1CBA4D4C006A2A8B /* test3.jpeg in Resources */,
-				250FB02D1CBA4FF9006A2A8B /* test4.png in Resources */,
-				2595D0731CB4DD4400AA313E /* test.png in Resources */,
-				250FB0291CBA4BD2006A2A8B /* test2.JPG in Resources */,
+				255B4D831CBE8AF300915C27 /* leftviewbackground.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -486,6 +487,7 @@
 				2595D07C1CB5249000AA313E /* ForegroundView.m in Sources */,
 				2595D0791CB5125A00AA313E /* PathModel.m in Sources */,
 				250FB0461CBBD87B006A2A8B /* VPTransitionInteractor.m in Sources */,
+				255B4D7C1CBCFF0800915C27 /* LeftViewCell.m in Sources */,
 				250FB0441CBBD87B006A2A8B /* VPTransitionAnimator.m in Sources */,
 				25D792E31CB29AC300692974 /* AppDelegate.m in Sources */,
 				250FB0451CBBD87B006A2A8B /* VPTransitionDelegate.m in Sources */,
@@ -622,7 +624,7 @@
 				INFOPLIST_FILE = MagicCamera/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = pw.lxf.MagicCamera;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "分身相机";
 			};
 			name = Debug;
 		};
@@ -636,7 +638,7 @@
 				INFOPLIST_FILE = MagicCamera/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = pw.lxf.MagicCamera;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "分身相机";
 			};
 			name = Release;
 		};

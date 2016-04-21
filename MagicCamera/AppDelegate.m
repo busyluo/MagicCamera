@@ -28,7 +28,6 @@
     self.window.rootViewController = sideViewController;
     
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-    
     [self.window makeKeyAndVisible];
     return YES;
 }

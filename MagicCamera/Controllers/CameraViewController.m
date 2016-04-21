@@ -34,14 +34,15 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 
 // Views
 @property (nonatomic) UIButton *menuButton;
-@property (nonatomic) UIButton *flashButton;
-@property (nonatomic) UIButton *focusIn;
-@property (nonatomic) UIButton *focusOut;
-@property (nonatomic) UIButton *switchButton;
+@property (nonatomic) UISlider *zoomSlider;
+//@property (nonatomic) UIButton *flashButton;
+//@property (nonatomic) UIButton *focusIn;
+//@property (nonatomic) UIButton *focusOut;
+//@property (nonatomic) UIButton *switchButton;
 
 @property (nonatomic) UIButton *resetButton;
-@property (nonatomic) UIButton *undoButton;
-@property (nonatomic) UIButton *startButton;
+//@property (nonatomic) UIButton *undoButton;
+@property (nonatomic) UIButton *takeButton;
 
 @property (nonatomic) PreviewView *previewView;
 @property (nonatomic) UIImageView *photoView;
@@ -120,20 +121,24 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 #pragma mark - System Config
 
 - (BOOL)shouldAutorotate {
-    return NO;
+    return YES;
 }
 
-- (BOOL)prefersStatusBarHidden {
-    return YES; // 返回NO表示要显示，返回YES将hiden
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    return UIStatusBarStyleLightContent;
 }
+
+/*
+ - (BOOL)prefersStatusBarHidden {
+ return YES; // 返回NO表示要显示，返回YES将hiden
+ }
+*/
 
 #pragma  mark - Rotate Notification
 -(void)didRotateDeviceChangeNotification:(NSNotification *)notification {
     UIDeviceOrientation currentDeviceOrientation =  [[UIDevice currentDevice] orientation];
-    /*if ((newOrientation == UIInterfaceOrientationLandscapeLeft || newOrientation == UIInterfaceOrientationLandscapeRight))
-     {
-     }*/
-    NSLog(@"%ld", currentDeviceOrientation);
+    NSLog(@"%ld", (long)currentDeviceOrientation);
 }
 
 #pragma mark - AVCapture
@@ -283,53 +288,30 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     
     //top
     self.menuButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.menuButton.frame = CGRectMake(0.0, 0.0, 40.0, 40.0);
-    [self.menuButton setTitle:@"三" forState:UIControlStateNormal];
+    self.menuButton.frame = CGRectMake(5.0, 25, 30.0, 30.0);
+    [self.menuButton setImage:[UIImage imageNamed:@"menu"] forState:UIControlStateNormal];
     [self.view addSubview:self.menuButton];
     [self.menuButton addTarget:self action:@selector(showMenu:) forControlEvents:UIControlEventTouchUpInside];
     
-    self.flashButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.flashButton.frame = CGRectMake(kScreenWidth / 4.0 - 20, 0.0, 40.0, 40.0);
-    [self.flashButton setTitle:@"X" forState:UIControlStateNormal];
-    [self.view addSubview:self.flashButton];
-    [self.flashButton addTarget:self action:@selector(changeFlash:) forControlEvents:UIControlEventTouchUpInside];
-    
-    self.focusOut = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.focusOut.frame = CGRectMake( 2 * kScreenWidth / 4.0 - 20, 0.0, 40.0, 40.0);
-    [self.focusOut setTitle:@"-" forState:UIControlStateNormal];
-    [self.view addSubview:self.focusOut];
-    [self.focusOut addTarget:self action:@selector(focusOut:) forControlEvents:UIControlEventTouchUpInside];
-    
-    self.focusIn = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.focusIn.frame = CGRectMake( 3 * kScreenWidth / 4.0 - 20, 0.0, 40.0, 40.0);
-    [self.focusIn setTitle:@"+" forState:UIControlStateNormal];
-    [self.view addSubview:self.focusIn];
-    [self.focusIn addTarget:self action:@selector(focusIn:) forControlEvents:UIControlEventTouchUpInside];
-    
-    self.switchButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.switchButton.frame = CGRectMake(kScreenWidth - 40, 0.0, 40.0, 40.0);
-    [self.view addSubview:self.switchButton];
-    [self.switchButton setTitle:@"S" forState:UIControlStateNormal];
-    [self.switchButton addTarget:self action:@selector(changeCamera:) forControlEvents:UIControlEventTouchUpInside];
+    self.zoomSlider = [[UISlider alloc] initWithFrame:CGRectMake(kScreenWidth / 2 - 100, 28, 200, 30)];
+    self.zoomSlider.minimumValue = 1.0;
+    self.zoomSlider.maximumValue = 3.0;
+    self.zoomSlider.continuous = YES;
+    [self.zoomSlider addTarget:self action:@selector(zoomSliderValueChanged:) forControlEvents:UIControlEventValueChanged];
+    [self.view addSubview:self.zoomSlider];
     
     //bottom
     self.resetButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.resetButton.frame = CGRectMake(20, kScreenHeight - 40.0, 40.0, 40.0);
-    [self.resetButton setTitle:@"R" forState:UIControlStateNormal];
+    self.resetButton.frame = CGRectMake(kScreenWidth - 50, kScreenHeight - 45.0, 20.0, 24.0);
+    [self.resetButton setImage:[UIImage imageNamed:@"reset"] forState:UIControlStateNormal];
     [self.view addSubview:self.resetButton];
     [self.resetButton addTarget:self action:@selector(reset:) forControlEvents:UIControlEventTouchUpInside];
     
-    self.undoButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.undoButton.frame = CGRectMake(kScreenWidth - 60, kScreenHeight - 40.0, 40.0, 40.0);
-    [self.undoButton setTitle:@"U" forState:UIControlStateNormal];
-    [self.view addSubview:self.undoButton];
-    [self.undoButton addTarget:self action:@selector(undo:) forControlEvents:UIControlEventTouchUpInside];
-    
-    self.startButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.startButton.frame = CGRectMake(kScreenWidth / 2 - 30, kScreenHeight - 60.0, 60.0, 60.0);
-    [self.startButton setTitle:@"O" forState:UIControlStateNormal];
-    [self.view addSubview:self.startButton];
-    [self.startButton addTarget:self action:@selector(start:) forControlEvents:UIControlEventTouchDown];
+    self.takeButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.takeButton.frame = CGRectMake(kScreenWidth / 2 - 30, kScreenHeight - 70.0, 60.0, 60.0);
+    [self.takeButton setImage:[UIImage imageNamed:@"shutter"] forState:UIControlStateNormal];
+    [self.view addSubview:self.takeButton];
+    [self.takeButton addTarget:self action:@selector(takePhoto:) forControlEvents:UIControlEventTouchDown];
 }
 
 - (void) configureViews {
@@ -349,6 +331,24 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     self.foregroundView.delegate = self;
     
     self.view.backgroundColor = [UIColor blackColor];
+}
+
+- (IBAction)zoomSliderValueChanged:(id)sender {
+    UISlider* control = (UISlider*)sender;
+    float value = control.value;
+    
+    AVCaptureDevice *device = self.videoDeviceInput.device;
+    NSError *error = nil;
+    if ( [device lockForConfiguration:&error] ) {
+        
+        [device setVideoZoomFactor:value];
+        
+        [device unlockForConfiguration];
+    }
+    else {
+        NSLog( @"Could not lock device for configuration: %@", error );
+    }
+    
 }
 
 #pragma mark Device Configuration
@@ -375,6 +375,42 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
             [device unlockForConfiguration];
         }
         else {
+            NSLog( @"Could not lock device for configuration: %@", error );
+        }
+    } );
+    
+}
+
+- (void)setSubjectAreaChangeMonitoring:(BOOL)monitorSubjectAreaChange
+{
+    dispatch_sync( self.sessionQueue, ^{
+        AVCaptureDevice *device = self.videoDeviceInput.device;
+        NSError *error = nil;
+        if ( [device lockForConfiguration:&error] ) {
+            
+            device.subjectAreaChangeMonitoringEnabled = monitorSubjectAreaChange;
+            [device unlockForConfiguration];
+        }
+        else {
+            NSLog( @"Could not lock device for configuration: %@", error );
+        }
+    } );
+    
+}
+
+- (void)setFocusMode:(AVCaptureFocusMode)focusMode exposeWithMode:(AVCaptureExposureMode)exposureMode{
+    dispatch_async( self.sessionQueue, ^{
+        AVCaptureDevice *device = self.videoDeviceInput.device;
+        NSError *error = nil;
+        if ( [device lockForConfiguration:&error] ) {
+            if ([device isFocusModeSupported:focusMode] ) {
+                device.focusMode = focusMode;
+            }
+            if ([device isExposureModeSupported:exposureMode] ) {
+                device.exposureMode = exposureMode;
+            }
+            [device unlockForConfiguration];
+        } else {
             NSLog( @"Could not lock device for configuration: %@", error );
         }
     } );
@@ -466,8 +502,11 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
 
 - (void)subjectAreaDidChange:(NSNotification *)notification
 {
+/*
+    NSLog(@"NSNotification:subjectAreaDidChange");
     CGPoint devicePoint = CGPointMake( 0.5, 0.5 );
-    [self focusWithMode:AVCaptureFocusModeContinuousAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:devicePoint monitorSubjectAreaChange:NO];
+    [self focusWithMode:AVCaptureFocusModeContinuousAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:devicePoint monitorSubjectAreaChange:YES];
+*/
 }
 
 #pragma mark - Actions
@@ -476,112 +515,22 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     [self.sideViewControllerDelegate showLeftViewController];
 }
 
-- (IBAction) changeFlash:(id)sender {
-    NSLog(@"changeFlash");
-}
-
-- (IBAction) focusIn:(id)sender {
-    NSLog(@"focusIn");
-}
-
-- (IBAction) focusOut:(id)sender {
-    NSLog(@"focusOut");
-}
-
-- (IBAction) changeCamera:(id)sender {
-    NSLog(@"changeCamera");
-}
-
-- (IBAction) undo:(id)sender {
-    NSLog(@"undo");
-    
-    UIImage *image = [UIImage imageNamed:@"test2.JPG"];
-    image = [image fixOrientation];
-    
-    CGImageRef imageRef = [image CGImage];
-    UIImage* imageDst;
-    
-    CGFloat height = self.foregroundView.frame.size.height;
-    CGFloat scala = image.size.height / height;
-    
-    if (_firstPhoto) {
-        
-        if (self.foregroundView.firstPath) {
-            imageContextRef = CGBitmapContextCreate(NULL, image.size.width, image.size.height,
-                                                    CGImageGetBitsPerComponent(image.CGImage), 0,
-                                                    CGImageGetColorSpace(image.CGImage),
-                                                    kCGImageAlphaPremultipliedLast);
-            
-            CGContextSaveGState(imageContextRef);
-            
-            CGAffineTransform pathTransform = CGAffineTransformTranslate(CGAffineTransformScale(CGAffineTransformIdentity, scala, -scala), 0, -height);
-            CGMutablePathRef mutPath = CGPathCreateMutableCopyByTransformingPath(self.foregroundView.firstPath, &pathTransform);
-            CGContextAddPath(imageContextRef, mutPath);
-            CGContextClip(imageContextRef);
-            CGContextDrawImage(imageContextRef, CGRectMake(0, 0, image.size.width, image.size.height), imageRef);
-            
-            CGImageRef imageRef = CGBitmapContextCreateImage(imageContextRef);
-            imageDst = [UIImage imageWithCGImage:imageRef];
-            CGImageRelease(imageRef);
-            
-            CGContextRestoreGState(imageContextRef);
-            CGPathRelease(mutPath);
-            
-            _firstPhoto = NO;
-        } else {
-            imageDst = image;
-        }
-        
-    } else {
-        
-        CGContextSaveGState(imageContextRef);
-        
-        CGAffineTransform pathTransform = CGAffineTransformTranslate(CGAffineTransformScale(CGAffineTransformIdentity, scala, -scala), 0, -height);
-        CGMutablePathRef mutPath = CGPathCreateMutableCopyByTransformingPath(self.foregroundView.secondPath, &pathTransform);
-        CGContextAddPath(imageContextRef, mutPath);
-        CGContextClip(imageContextRef);
-        CGContextDrawImage(imageContextRef, CGRectMake(0, 0, image.size.width, image.size.height), image.CGImage);
-        CGContextRestoreGState(imageContextRef);
-        
-        CGImageRef imageRef = CGBitmapContextCreateImage(imageContextRef);
-        imageDst = [UIImage imageWithCGImage:imageRef];
-        CGImageRelease(imageRef);
-        
-        CGContextRelease(imageContextRef);
-        imageContextRef = nil;
-        CGPathRelease(mutPath);
-        
-        _firstPhoto = YES;
-    }
-    
-    dispatch_async( dispatch_get_main_queue(), ^{
-        self.photoView.image =  imageDst;
-        
-        if(_firstPhoto){
-            self.imageTemp = imageDst;
-            VPInteractiveImageView *interactiveImageView = [[VPInteractiveImageView alloc] initWithImage:imageDst];
-            interactiveImageView.photoDelegate = self;
-            [interactiveImageView presentFullscreen];
-        }
-        
-        self.startButton.enabled = YES;
-    } );
-    
-}
-
 - (IBAction) reset:(id)sender {
     NSLog(@"reset");
     
     _firstPhoto = YES;
     self.photoView.image = nil;
     [self.foregroundView reset];
+    
+    
+    CGPoint devicePoint = CGPointMake( 0.5, 0.5 );
+    [self focusWithMode:AVCaptureFocusModeContinuousAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:devicePoint monitorSubjectAreaChange:YES];
 }
 
 
-
-- (IBAction) start:(id)takePhoto {
+- (IBAction) takePhoto:(id)sender {
     NSLog(@"start");
-    self.startButton.enabled = NO;
+    self.takeButton.enabled = NO;
     
     dispatch_async( self.sessionQueue, ^{
         AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
@@ -591,7 +540,9 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
               previewLayer.frame.size.width, previewLayer.frame.size.height);
         
         // Update the orientation on the still image output video connection before capturing.
-        connection.videoOrientation = previewLayer.connection.videoOrientation;
+        UIDeviceOrientation currentDeviceOrientation =  [[UIDevice currentDevice] orientation];
+        //connection.videoOrientation = (AVCaptureVideoOrientation)currentDeviceOrientation;
+        connection.videoOrientation = AVCaptureVideoOrientationPortrait;
         
         // Flash set to Auto for Still Capture.
         [CameraViewController setFlashMode:AVCaptureFlashModeOff forDevice:self.videoDeviceInput.device];
@@ -601,17 +552,18 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
             if ( imageDataSampleBuffer ) {
                 // The sample buffer is not retained. Create image data before saving the still image to the photo library asynchronously.
                 NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
-                //UIImage *image = [UIImage imageWithData:imageData];
-                UIImage *image = [UIImage imageNamed:@"test2.JPG"];
+                UIImage *image = [UIImage imageWithData:imageData];
                 image = [image fixOrientation];
                 
                 CGImageRef imageRef = [image CGImage];
-                UIImage* imageDst;
+                __block UIImage *imageDst;
                 
                 CGFloat height = self.foregroundView.frame.size.height;
                 CGFloat scala = image.size.height / height;
-                
+        
                 if (_firstPhoto) {
+                    
+                    [self setFocusMode:AVCaptureFocusModeLocked exposeWithMode:AVCaptureExposureModeLocked];
                     
                     if (self.foregroundView.firstPath) {
                         imageContextRef = CGBitmapContextCreate(NULL, image.size.width, image.size.height,
@@ -626,21 +578,21 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                         CGContextAddPath(imageContextRef, mutPath);
                         CGContextClip(imageContextRef);
                         CGContextDrawImage(imageContextRef, CGRectMake(0, 0, image.size.width, image.size.height), imageRef);
+                        CGPathRelease(mutPath);
                         
                         CGImageRef imageRef = CGBitmapContextCreateImage(imageContextRef);
                         imageDst = [UIImage imageWithCGImage:imageRef];
                         CGImageRelease(imageRef);
                         
                         CGContextRestoreGState(imageContextRef);
-                        CGPathRelease(mutPath);
-                        
+
                         _firstPhoto = NO;
                     } else {
                         imageDst = image;
                     }
-                    
-                    
                 } else {
+                    CGPoint devicePoint = CGPointMake( 0.5, 0.5 );
+                    [self focusWithMode:AVCaptureFocusModeContinuousAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:devicePoint monitorSubjectAreaChange:YES];
                     
                     CGContextSaveGState(imageContextRef);
                     
@@ -648,7 +600,10 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                     CGMutablePathRef mutPath = CGPathCreateMutableCopyByTransformingPath(self.foregroundView.secondPath, &pathTransform);
                     CGContextAddPath(imageContextRef, mutPath);
                     CGContextClip(imageContextRef);
+                    CGPathRelease(mutPath);
+                    
                     CGContextDrawImage(imageContextRef, CGRectMake(0, 0, image.size.width, image.size.height), image.CGImage);
+                    
                     CGContextRestoreGState(imageContextRef);
                     
                     CGImageRef imageRef = CGBitmapContextCreateImage(imageContextRef);
@@ -657,22 +612,24 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
                     
                     CGContextRelease(imageContextRef);
                     imageContextRef = nil;
-                    CGPathRelease(mutPath);
                     
                     _firstPhoto = YES;
                 }
                 
                 dispatch_async( dispatch_get_main_queue(), ^{
-                    self.photoView.image =  imageDst;
                     
                     if(_firstPhoto){
+                        UIImageOrientation imgOrientation = [self getImageOrientationFromDeviceOrientation:currentDeviceOrientation];
+                        imageDst = [imageDst fixOrientationFromOrientation:imgOrientation];
                         self.imageTemp = imageDst;
                         VPInteractiveImageView *interactiveImageView = [[VPInteractiveImageView alloc] initWithImage:imageDst];
                         interactiveImageView.photoDelegate = self;
                         [interactiveImageView presentFullscreen];
+                    } else {
+                        self.photoView.image =  imageDst;
                     }
                     
-                    self.startButton.enabled = YES;
+                    self.takeButton.enabled = YES;
                 } );
             }
             else {
@@ -682,10 +639,24 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     } );
 }
 
+- (UIImageOrientation)getImageOrientationFromDeviceOrientation:(UIDeviceOrientation)deviceOrientation {
+    UIImageOrientation imgOrientation;
+    switch (deviceOrientation) {
+        case UIDeviceOrientationLandscapeLeft:
+            imgOrientation = UIImageOrientationLeft;
+            break;
+        case UIDeviceOrientationLandscapeRight:
+            imgOrientation = UIImageOrientationRight;
+        default:
+            imgOrientation = UIImageOrientationUp;
+            break;
+    }
+    return imgOrientation;
+}
+
 - (void)tapFirstPath {
     
 }
-
 - (void)tapSecondPath {
     
 }
@@ -731,7 +702,18 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult ) {
     UIImageWriteToSavedPhotosAlbum(image, self, nil, nil);
     
     [self reset:nil];
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:@"照片已经保存到相册" preferredStyle:UIAlertControllerStyleAlert];
+    [self presentViewController:alertController animated:YES completion:nil];
+    
+    [self performSelector:@selector(dismssAlertController:) withObject:alertController afterDelay:1.6];
 }
+
+-(void)dismssAlertController:(UIAlertController*)alertController
+{
+    [alertController dismissViewControllerAnimated:YES completion:nil];
+}
+
 
 -(void)discardPhoto {
     [self reset:nil];

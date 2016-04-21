@@ -58,7 +58,7 @@
     [self.view addGestureRecognizer:doubleTapRecognizer];
     _tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewTapped:)];
     [_tapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
-    [self.view addGestureRecognizer:_tapRecognizer];
+    //[self.view addGestureRecognizer:_tapRecognizer];
     
     [self setupScrollView];
     self.view.backgroundColor = [UIColor blackColor];
@@ -99,6 +99,11 @@
     [self.presentingViewController dismissViewControllerAnimated:YES completion:NULL];
     
     [self.delegate discardPhoto];
+}
+
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    return UIStatusBarStyleLightContent;
 }
 
 - (void)setupScrollView {

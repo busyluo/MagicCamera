@@ -23,30 +23,21 @@
 - (instancetype)initWithRootViewController:(UIViewController *)rootViewController{
     self = [super initWithRootViewController:rootViewController];
     if (self){
-
-        _sideViewController = [LeftViewController new];
-        
-        [self setLeftViewEnabledWithWidth:250.f
+        [self setLeftViewEnabledWithWidth:150.f
                         presentationStyle:LGSideMenuPresentationStyleScaleFromLittle
                      alwaysVisibleOptions:LGSideMenuAlwaysVisibleOnNone];
         
         self.leftViewStatusBarStyle = UIStatusBarStyleDefault;
         self.leftViewStatusBarVisibleOptions = LGSideMenuStatusBarVisibleOnNone;
-
-        //[self addChildViewController:_sideViewController];
+        self.leftViewBackgroundImage = [UIImage imageNamed:@"leftviewbackground"];
+        
+        _sideViewController = [LeftViewController new];
+        _sideViewController.tableView.backgroundColor = [UIColor clearColor];
+        _sideViewController.tintColor = [UIColor whiteColor];
         [self.leftView addSubview:_sideViewController.view];
-        
-        
     }
     return self;
 }
-
-- (void)loadView{
-    [super loadView];
-    
-    
-}
-
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -56,6 +47,15 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Rotate
+- (BOOL)shouldAutorotate {
+    return YES;
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskPortrait;
 }
 
 #pragma mark - CameraViewController Delegate
